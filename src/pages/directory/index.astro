@@ -1,0 +1,194 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const businesses = await getCollection('directory');
+const categories = ['all', 'restaurant', 'retail', 'services', 'tech', 'health', 'education', 'other'];
+
+const categoryLabels: Record<string, string> = {
+	restaurant: 'Restaurants',
+	retail: 'Retail',
+	services: 'Services',
+	tech: 'Tech',
+	health: 'Health',
+	education: 'Education',
+	other: 'Other',
+};
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="Directory | GABA" description="Local Zimbabwean businesses and services" />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="hero">
+				<h1>Business Directory</h1>
+				<p>Discover local Zimbabwean businesses and services</p>
+			</section>
+			<div class="search-bar">
+				<input type="text" id="search" placeholder="Search businesses..." />
+			</div>
+			<div class="filters">
+				{categories.map((cat) => (
+					<button class="filter-btn" data-category={cat}>
+						{cat === 'all' ? 'All' : categoryLabels[cat] || cat}
+					</button>
+				))}
+			</div>
+			<section class="business-grid">
+				{businesses.map((biz) => (
+					<a href={`/directory/${biz.id}`} class="business-card" data-category={biz.data.category}>
+						<span class="category-badge">{biz.data.category}</span>
+						<h2>{biz.data.name}</h2>
+						<p class="description">{biz.data.description}</p>
+						<p class="location">📍 {biz.data.location}</p>
+					</a>
+				))}
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main {
+		max-width: 1000px;
+		margin: 0 auto;
+		padding: 1em;
+	}
+	.hero {
+		text-align: center;
+		padding: 3em 0 2em;
+	}
+	.hero h1 {
+		font-size: 2.5em;
+		margin-bottom: 0.5em;
+	}
+	.hero p {
+		color: rgb(var(--gray));
+	}
+	.search-bar {
+		max-width: 500px;
+		margin: 0 auto 2em;
+	}
+	.search-bar input {
+		width: 100%;
+		padding: 1em;
+		border: 2px solid rgb(var(--gray-light));
+		border-radius: 8px;
+		font-size: 1em;
+	}
+	.search-bar input:focus {
+		outline: none;
+		border-color: var(--zim-green);
+	}
+	.filters {
+		display: flex;
+		gap: 0.75em;
+		justify-content: center;
+		margin-bottom: 2em;
+		flex-wrap: wrap;
+	}
+	.filter-btn {
+		padding: 0.5em 1.25em;
+		border: 2px solid var(--zim-gold);
+		background: transparent;
+		color: var(--zim-gold);
+		border-radius: 25px;
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 0.9em;
+		transition: all 0.2s;
+	}
+	.filter-btn:hover,
+	.filter-btn.active {
+		background: var(--zim-gold);
+		color: #000;
+	}
+	.business-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: 1.5em;
+	}
+	.business-card {
+		padding: 1.5em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 12px;
+		text-decoration: none;
+		color: inherit;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+	.business-card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+	}
+	.category-badge {
+		display: inline-block;
+		padding: 0.25em 0.75em;
+		background: var(--zim-green);
+		color: #fff;
+		border-radius: 4px;
+		font-size: 0.75em;
+		font-weight: bold;
+		text-transform: uppercase;
+		margin-bottom: 0.75em;
+	}
+	h2 {
+		margin: 0 0 0.5em 0;
+		font-size: 1.2em;
+	}
+	.description {
+		color: rgb(var(--gray));
+		margin-bottom: 1em;
+		line-height: 1.5;
+		font-size: 0.95em;
+	}
+	.location {
+		color: rgb(var(--gray));
+		font-size: 0.9em;
+	}
+	.business-card.hidden {
+		display: none;
+	}
+</style>
+
+<script>
+	const searchInput = document.getElementById('search') as HTMLInputElement;
+	const buttons = document.querySelectorAll('.filter-btn');
+	const cards = document.querySelectorAll('.business-card');
+
+	function filterCards() {
+		const searchTerm = searchInput.value.toLowerCase();
+		const activeCategory = document.querySelector('.filter-btn.active')?.getAttribute('data-category');
+
+		cards.forEach((card) => {
+			const title = card.querySelector('h2')?.textContent?.toLowerCase() || '';
+			const desc = card.querySelector('.description')?.textContent?.toLowerCase() || '';
+			const category = card.getAttribute('data-category');
+
+			const matchesSearch = title.includes(searchTerm) || desc.includes(searchTerm);
+			const matchesCategory = activeCategory === 'all' || category === activeCategory;
+
+			if (matchesSearch && matchesCategory) {
+				card.classList.remove('hidden');
+			} else {
+				card.classList.add('hidden');
+			}
+		});
+	}
+
+	searchInput.addEventListener('input', filterCards);
+
+	buttons.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			buttons.forEach((b) => b.classList.remove('active'));
+			btn.classList.add('active');
+			filterCards();
+		});
+	});
+</script>

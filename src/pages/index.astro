@@ -1,8 +1,24 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import FormattedDate from '../components/FormattedDate.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+
+const latestBlog = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+)[0];
+
+const latestNews = (await getCollection('news')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+)[0];
+
+const latestProjects = (await getCollection('projects')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const directoryCount = (await getCollection('directory')).length;
 ---
 
 <!doctype html>
@@ -13,37 +29,375 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	<body>
 		<Header />
 		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+			<section class="hero">
+				<div class="hero-content">
+					<h1>Welcome to <span class="highlight">GABA</span></h1>
+					<p class="tagline">Your hub for blogs, news, projects, and local Zimbabwean businesses</p>
+					<div class="cta-buttons">
+						<a href="/directory" class="btn-primary">Explore Directory</a>
+						<a href="/blog" class="btn-secondary">Read Blog</a>
+					</div>
+				</div>
+				<div class="hero-stats">
+					<div class="stat">
+						<span class="stat-number">{latestProjects.length}</span>
+						<span class="stat-label">Projects</span>
+					</div>
+					<div class="stat">
+						<span class="stat-number">{directoryCount}</span>
+						<span class="stat-label">Local Businesses</span>
+					</div>
+				</div>
+			</section>
+
+			<section class="latest-section">
+				<h2>Latest from the Blog</h2>
+				{latestBlog ? (
+					<a href={`/blog/${latestBlog.id}`} class="card">
+						<h3>{latestBlog.data.title}</h3>
+						<p>{latestBlog.data.description}</p>
+						<span class="date"><FormattedDate date={latestBlog.data.pubDate} /></span>
+					</a>
+				) : (
+					<p class="coming-soon">No blog posts yet. Check back soon!</p>
+				)}
+			</section>
+
+			<section class="latest-section">
+				<h2>Latest News</h2>
+				{latestNews ? (
+					<a href={`/news/${latestNews.id}`} class="card news-card">
+						<span class="category">{latestNews.data.category}</span>
+						<h3>{latestNews.data.title}</h3>
+						<p>{latestNews.data.description}</p>
+						<span class="date"><FormattedDate date={latestNews.data.pubDate} /></span>
+					</a>
+				) : (
+					<p class="coming-soon">No news yet. Stay tuned!</p>
+				)}
+				<a href="/news" class="view-all">View all news →</a>
+			</section>
+
+			<section class="projects-preview">
+				<h2>Featured Projects</h2>
+				<div class="projects-grid">
+					{latestProjects.slice(0, 3).map((project) => (
+						<a href={`/projects/${project.id}`} class="project-card">
+							<span class="category-badge">{project.data.category}</span>
+							<h3>{project.data.title}</h3>
+							<p>{project.data.description}</p>
+						</a>
+					))}
+				</div>
+				<a href="/projects" class="view-all">View all projects →</a>
+			</section>
+
+			<section class="directory-cta">
+				<div class="cta-content">
+					<h2>Discover Local Businesses</h2>
+					<p>Explore our directory of {directoryCount} local Zimbabwean businesses and services.</p>
+					<a href="/directory" class="btn-primary">Browse Directory</a>
+				</div>
+			</section>
+
+			<section class="products-section">
+				<div class="section-header">
+					<h2>Shop Products</h2>
+					<a href="/products" class="view-all">View all products →</a>
+				</div>
+				<p class="section-intro">Browse products from local vendors</p>
+				<div class="products-grid">
+					<div class="product-card">
+						<div class="product-image">📱</div>
+						<div class="product-info">
+							<span class="category-badge">Electronics</span>
+							<h3>Coming Soon</h3>
+							<p>Local products will appear here</p>
+						</div>
+					</div>
+					<div class="product-card">
+						<div class="product-image">👕</div>
+						<div class="product-info">
+							<span class="category-badge">Clothing</span>
+							<h3>Coming Soon</h3>
+							<p>Local products will appear here</p>
+						</div>
+					</div>
+					<div class="product-card">
+						<div class="product-image">🍔</div>
+						<div class="product-info">
+							<span class="category-badge">Food</span>
+							<h3>Coming Soon</h3>
+							<p>Local products will appear here</p>
+						</div>
+					</div>
+				</div>
+				<div class="vendor-banner">
+					<p>Are you a vendor? <a href="/vendor">Start selling today →</a></p>
+				</div>
+			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.hero {
+		text-align: center;
+		padding: 4em 0;
+		border-bottom: 1px solid rgb(var(--gray-light));
+		margin-bottom: 3em;
+	}
+	.hero h1 {
+		font-size: 3em;
+		margin-bottom: 0.5em;
+	}
+	.highlight {
+		background: linear-gradient(90deg, var(--zim-green), var(--zim-gold));
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+	.tagline {
+		color: rgb(var(--gray));
+		font-size: 1.2em;
+		margin-bottom: 2em;
+	}
+	.cta-buttons {
+		display: flex;
+		gap: 1em;
+		justify-content: center;
+		margin-bottom: 2em;
+	}
+	.btn-primary {
+		padding: 0.75em 1.5em;
+		background: var(--zim-green);
+		color: #fff;
+		text-decoration: none;
+		border-radius: 8px;
+		font-weight: 600;
+	}
+	.btn-primary:hover {
+		background: #1a6b2a;
+	}
+	.btn-secondary {
+		padding: 0.75em 1.5em;
+		border: 2px solid var(--zim-green);
+		color: var(--zim-green);
+		text-decoration: none;
+		border-radius: 8px;
+		font-weight: 600;
+	}
+	.btn-secondary:hover {
+		background: var(--zim-green);
+		color: #fff;
+	}
+	.hero-stats {
+		display: flex;
+		justify-content: center;
+		gap: 4em;
+	}
+	.stat {
+		display: flex;
+		flex-direction: column;
+	}
+	.stat-number {
+		font-size: 2.5em;
+		font-weight: bold;
+		color: var(--zim-gold);
+	}
+	.stat-label {
+		color: rgb(var(--gray));
+		font-size: 0.9em;
+	}
+	.latest-section {
+		margin-bottom: 3em;
+	}
+	.latest-section h2 {
+		margin-bottom: 1em;
+		color: var(--zim-green);
+	}
+	.card {
+		display: block;
+		padding: 1.5em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 12px;
+		text-decoration: none;
+		color: inherit;
+		transition: all 0.2s;
+	}
+	.card:hover {
+		box-shadow: var(--box-shadow);
+		transform: translateY(-2px);
+	}
+	.card h3 {
+		margin: 0 0 0.5em 0;
+		color: rgb(var(--gray-dark));
+	}
+	.card p {
+		color: rgb(var(--gray));
+		margin-bottom: 0.5em;
+	}
+	.news-card .category {
+		display: inline-block;
+		padding: 0.25em 0.75em;
+		background: var(--zim-gold);
+		color: #000;
+		border-radius: 4px;
+		font-size: 0.75em;
+		font-weight: bold;
+		text-transform: uppercase;
+		margin-bottom: 0.5em;
+	}
+	.date {
+		font-size: 0.85em;
+		color: rgb(var(--gray));
+	}
+	.view-all {
+		display: inline-block;
+		margin-top: 1em;
+		color: var(--zim-green);
+		text-decoration: none;
+		font-weight: 600;
+	}
+	.view-all:hover {
+		text-decoration: underline;
+	}
+	.projects-preview {
+		margin-bottom: 3em;
+	}
+	.projects-preview h2 {
+		margin-bottom: 1em;
+		color: var(--zim-red);
+	}
+	.projects-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 1.5em;
+	}
+	.project-card {
+		padding: 1.5em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 12px;
+		text-decoration: none;
+		color: inherit;
+		transition: all 0.2s;
+	}
+	.project-card:hover {
+		box-shadow: var(--box-shadow);
+		transform: translateY(-4px);
+	}
+	.category-badge {
+		display: inline-block;
+		padding: 0.25em 0.75em;
+		background: var(--zim-red);
+		color: #fff;
+		border-radius: 4px;
+		font-size: 0.75em;
+		font-weight: bold;
+		text-transform: uppercase;
+		margin-bottom: 0.75em;
+	}
+	.project-card h3 {
+		margin: 0 0 0.5em 0;
+	}
+	.project-card p {
+		color: rgb(var(--gray));
+		font-size: 0.95em;
+	}
+	.directory-cta {
+		background: linear-gradient(135deg, var(--zim-green), #2d7a38);
+		border-radius: 16px;
+		padding: 3em;
+		text-align: center;
+		color: #fff;
+	}
+	.cta-content h2 {
+		color: #fff;
+		margin-bottom: 0.5em;
+	}
+	.cta-content p {
+		margin-bottom: 1.5em;
+		opacity: 0.9;
+	}
+	.directory-cta .btn-primary {
+		background: var(--zim-gold);
+		color: #000;
+	}
+	.directory-cta .btn-primary:hover {
+		background: #c49a0f;
+	}
+	.coming-soon {
+		color: rgb(var(--gray));
+		font-style: italic;
+	}
+	.products-section {
+		margin-bottom: 3em;
+	}
+	.section-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 0.5em;
+	}
+	.section-header h2 {
+		color: var(--zim-green);
+		margin: 0;
+	}
+	.section-intro {
+		color: rgb(var(--gray));
+		margin-bottom: 1.5em;
+	}
+	.products-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 1.5em;
+	}
+	.product-card {
+		background: white;
+		border-radius: 12px;
+		overflow: hidden;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+	.product-card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+	}
+	.product-image {
+		width: 100%;
+		height: 120px;
+		background: linear-gradient(135deg, var(--zim-gold), var(--zim-green));
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 2.5em;
+	}
+	.product-info {
+		padding: 1em;
+	}
+	.product-info h3 {
+		margin: 0.5em 0 0.25em;
+		font-size: 1em;
+	}
+	.product-info p {
+		color: rgb(var(--gray));
+		font-size: 0.85em;
+		margin: 0;
+	}
+	.vendor-banner {
+		text-align: center;
+		margin-top: 2em;
+		padding: 1.5em;
+		background: rgba(49, 155, 50, 0.1);
+		border-radius: 12px;
+	}
+	.vendor-banner p {
+		margin: 0;
+		color: rgb(var(--gray-dark));
+	}
+	.vendor-banner a {
+		color: var(--zim-green);
+		font-weight: 600;
+	}
+</style>

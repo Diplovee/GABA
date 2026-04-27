@@ -1,0 +1,260 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="Vendor Portal | GABA" description="Register your business and start selling on GABA" />
+	</head>
+	<body>
+		<Header />
+		<main class="auth-page">
+			<div class="auth-container">
+				<div class="auth-header">
+					<h1>Vendor Portal</h1>
+					<p>List your products and reach Zimbabwean customers</p>
+				</div>
+
+				<div class="auth-tabs">
+					<button class="tab-btn active" data-tab="login">Login</button>
+					<button class="tab-btn" data-tab="register">Register</button>
+				</div>
+
+				<div id="login-form" class="auth-form">
+					<form id="loginForm">
+						<div class="form-group">
+							<label for="email">Email</label>
+							<input type="email" id="email" name="email" required placeholder="you@example.com" />
+						</div>
+						<div class="form-group">
+							<label for="password">Password</label>
+							<input type="password" id="password" name="password" required placeholder="Your password" />
+						</div>
+						<button type="submit" class="btn-primary">Login</button>
+						<p class="auth-switch">
+							Don't have an account? <button type="button" class="link-btn" onclick="switchTab('register')">Register here</button>
+						</p>
+					</form>
+				</div>
+
+				<div id="register-form" class="auth-form hidden">
+					<form id="registerForm">
+						<div class="form-group">
+							<label for="reg-name">Business/Personal Name</label>
+							<input type="text" id="reg-name" name="name" required placeholder="Your name or business name" />
+						</div>
+						<div class="form-group">
+							<label for="reg-business">Business Name (Optional)</label>
+							<input type="text" id="reg-business" name="businessName" placeholder="Your company name" />
+						</div>
+						<div class="form-group">
+							<label for="reg-email">Email</label>
+							<input type="email" id="reg-email" name="email" required placeholder="you@example.com" />
+						</div>
+						<div class="form-group">
+							<label for="reg-phone">Phone (for EcoCash/M-Pesa payments)</label>
+							<input type="tel" id="reg-phone" name="phone" required placeholder="+263 77 123 4567" />
+						</div>
+						<div class="form-group">
+							<label for="reg-password">Password</label>
+							<input type="password" id="reg-password" name="password" required minlength="8" placeholder="Min 8 characters" />
+						</div>
+						<div class="form-group">
+							<label for="reg-confirm">Confirm Password</label>
+							<input type="password" id="reg-confirm" name="confirmPassword" required placeholder="Repeat password" />
+						</div>
+						<button type="submit" class="btn-primary">Create Account</button>
+						<p class="auth-switch">
+							Already have an account? <button type="button" class="link-btn" onclick="switchTab('login')">Login here</button>
+						</p>
+					</form>
+				</div>
+
+				<div id="message" class="message hidden"></div>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<script>
+	function switchTab(tab: string) {
+		document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+		document.querySelectorAll('.auth-form').forEach(form => form.classList.add('hidden'));
+		document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+		document.getElementById(`${tab}-form`)?.classList.remove('hidden');
+	}
+
+	document.querySelectorAll('.tab-btn').forEach(btn => {
+		btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab') || 'login'));
+	});
+
+	document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+		e.preventDefault();
+		const form = e.target as HTMLFormElement;
+		const messageEl = document.getElementById('message');
+		
+		const email = (form.querySelector('#email') as HTMLInputElement).value;
+		const password = (form.querySelector('#password') as HTMLInputElement).value;
+		
+		try {
+			const result = await (window as any).convexAuth.signIn.emailPassword({ email, password });
+			if (result) {
+				window.location.href = '/vendor/dashboard';
+			}
+		} catch (error: any) {
+			messageEl!.textContent = error.message || 'Login failed';
+			messageEl!.classList.remove('hidden', 'success');
+			messageEl!.classList.add('error');
+		}
+	});
+
+	document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+		e.preventDefault();
+		const form = e.target as HTMLFormElement;
+		const messageEl = document.getElementById('message');
+		
+		const name = (form.querySelector('#reg-name') as HTMLInputElement).value;
+		const businessName = (form.querySelector('#reg-business') as HTMLInputElement).value;
+		const email = (form.querySelector('#reg-email') as HTMLInputElement).value;
+		const phone = (form.querySelector('#reg-phone') as HTMLInputElement).value;
+		const password = (form.querySelector('#reg-password') as HTMLInputElement).value;
+		const confirmPassword = (form.querySelector('#reg-confirm') as HTMLInputElement).value;
+		
+		if (password !== confirmPassword) {
+			messageEl!.textContent = 'Passwords do not match';
+			messageEl!.classList.remove('hidden', 'success');
+			messageEl!.classList.add('error');
+			return;
+		}
+		
+		try {
+			const result = await (window as any).convexAuth.signUp.emailPassword({ email, password });
+			if (result) {
+				window.location.href = '/pricing';
+			}
+		} catch (error: any) {
+			messageEl!.textContent = error.message || 'Registration failed';
+			messageEl!.classList.remove('hidden', 'success');
+			messageEl!.classList.add('error');
+		}
+	});
+</script>
+
+<style>
+	.auth-page {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 60vh;
+		padding: 2em;
+	}
+	.auth-container {
+		width: 100%;
+		max-width: 400px;
+		background: white;
+		border-radius: 16px;
+		padding: 2em;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	}
+	.auth-header {
+		text-align: center;
+		margin-bottom: 2em;
+	}
+	.auth-header h1 {
+		color: var(--zim-green);
+		margin-bottom: 0.5em;
+	}
+	.auth-header p {
+		color: rgb(var(--gray));
+	}
+	.auth-tabs {
+		display: flex;
+		gap: 1em;
+		margin-bottom: 1.5em;
+	}
+	.tab-btn {
+		flex: 1;
+		padding: 0.75em;
+		border: 2px solid rgb(var(--gray-light));
+		background: transparent;
+		color: rgb(var(--gray));
+		border-radius: 8px;
+		cursor: pointer;
+		font-weight: 600;
+		transition: all 0.2s;
+	}
+	.tab-btn.active {
+		border-color: var(--zim-green);
+		color: var(--zim-green);
+		background: rgba(49, 155, 50, 0.1);
+	}
+	.form-group {
+		margin-bottom: 1em;
+	}
+	.form-group label {
+		display: block;
+		margin-bottom: 0.5em;
+		font-weight: 600;
+		color: rgb(var(--gray-dark));
+	}
+	.form-group input {
+		width: 100%;
+		padding: 0.75em;
+		border: 2px solid rgb(var(--gray-light));
+		border-radius: 8px;
+		font-size: 1em;
+	}
+	.form-group input:focus {
+		outline: none;
+		border-color: var(--zim-green);
+	}
+	.btn-primary {
+		width: 100%;
+		padding: 0.75em;
+		background: var(--zim-green);
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-size: 1em;
+		font-weight: 600;
+		cursor: pointer;
+		margin-top: 1em;
+	}
+	.btn-primary:hover {
+		background: #1a6b2a;
+	}
+	.auth-switch {
+		text-align: center;
+		margin-top: 1.5em;
+		color: rgb(var(--gray));
+	}
+	.link-btn {
+		background: none;
+		border: none;
+		color: var(--zim-green);
+		cursor: pointer;
+		text-decoration: underline;
+		font-weight: 600;
+	}
+	.hidden {
+		display: none;
+	}
+	.message {
+		padding: 1em;
+		border-radius: 8px;
+		margin-top: 1em;
+		text-align: center;
+	}
+	.message.error {
+		background: rgba(215, 20, 61, 0.1);
+		color: var(--zim-red);
+	}
+	.message.success {
+		background: rgba(49, 155, 50, 0.1);
+		color: var(--zim-green);
+	}
+</style>

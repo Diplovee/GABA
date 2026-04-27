@@ -1,0 +1,166 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+
+const projects = (await getCollection('projects')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const categories = ['all', 'webapp', 'mobile', 'website'];
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="Projects | GABA" description="Portfolio of web apps, mobile apps, and websites" />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="hero">
+				<h1>Projects</h1>
+				<p>Web apps, mobile apps, and websites</p>
+			</section>
+			<div class="filters">
+				{categories.map((cat) => (
+					<button class="filter-btn" data-category={cat}>
+						{cat === 'all' ? 'All' : cat === 'webapp' ? 'Web Apps' : cat === 'mobile' ? 'Mobile Apps' : 'Websites'}
+					</button>
+				))}
+			</div>
+			<section class="projects-grid">
+				{projects.map((project) => (
+					<article class="project-card" data-category={project.data.category}>
+						<span class="category-badge">{project.data.category}</span>
+						<h2>{project.data.title}</h2>
+						<p class="description">{project.data.description}</p>
+						<div class="links">
+							{project.data.url && <a href={project.data.url} target="_blank">Live Demo →</a>}
+							{project.data.repo && <a href={project.data.repo} target="_blank">Source Code</a>}
+						</div>
+						<p class="date"><FormattedDate date={project.data.pubDate} /></p>
+					</article>
+				))}
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main {
+		max-width: 1000px;
+		margin: 0 auto;
+		padding: 1em;
+	}
+	.hero {
+		text-align: center;
+		padding: 3em 0;
+	}
+	.hero h1 {
+		font-size: 2.5em;
+		margin-bottom: 0.5em;
+	}
+	.filters {
+		display: flex;
+		gap: 1em;
+		justify-content: center;
+		margin-bottom: 2em;
+		flex-wrap: wrap;
+	}
+	.filter-btn {
+		padding: 0.5em 1.5em;
+		border: 2px solid var(--zim-green);
+		background: transparent;
+		color: var(--zim-green);
+		border-radius: 25px;
+		cursor: pointer;
+		font-weight: 600;
+		transition: all 0.2s;
+	}
+	.filter-btn:hover,
+	.filter-btn.active {
+		background: var(--zim-green);
+		color: #fff;
+	}
+	.projects-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		gap: 1.5em;
+	}
+	.project-card {
+		padding: 1.5em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 12px;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+	.project-card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+	}
+	.category-badge {
+		display: inline-block;
+		padding: 0.25em 0.75em;
+		background: var(--zim-red);
+		color: #fff;
+		border-radius: 4px;
+		font-size: 0.75em;
+		font-weight: bold;
+		text-transform: uppercase;
+		margin-bottom: 0.75em;
+	}
+	h2 {
+		margin: 0 0 0.5em 0;
+		font-size: 1.25em;
+	}
+	.description {
+		color: rgb(var(--gray));
+		margin-bottom: 1em;
+		line-height: 1.5;
+	}
+	.links {
+		display: flex;
+		gap: 1em;
+		margin-bottom: 1em;
+	}
+	.links a {
+		color: var(--zim-green);
+		text-decoration: none;
+		font-weight: 600;
+	}
+	.links a:hover {
+		text-decoration: underline;
+	}
+	.date {
+		font-size: 0.85em;
+		color: rgb(var(--gray));
+	}
+	.project-card.hidden {
+		display: none;
+	}
+</style>
+
+<script>
+	const buttons = document.querySelectorAll('.filter-btn');
+	const cards = document.querySelectorAll('.project-card');
+
+	buttons.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const category = btn.getAttribute('data-category');
+			
+			buttons.forEach((b) => b.classList.remove('active'));
+			btn.classList.add('active');
+
+			cards.forEach((card) => {
+				if (category === 'all' || card.getAttribute('data-category') === category) {
+					card.classList.remove('hidden');
+				} else {
+					card.classList.add('hidden');
+				}
+			});
+		});
+	});
+</script>

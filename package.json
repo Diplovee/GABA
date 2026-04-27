@@ -15,7 +15,11 @@
     "@astrojs/mdx": "^5.0.4",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
+    "@convex-dev/auth": "^0.0.91",
+    "@keystatic/astro": "^5.0.6",
+    "@keystatic/core": "^0.5.50",
     "astro": "^6.1.9",
+    "convex": "^1.36.1",
     "sharp": "^0.34.3"
   }
 }

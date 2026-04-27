@@ -1,0 +1,122 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+export async function getStaticPaths() {
+	const businesses = await getCollection('directory');
+	return businesses.map((biz) => ({
+		params: { slug: biz.id },
+		props: biz,
+	}));
+}
+
+const biz = Astro.props;
+const { Content } = await render(biz);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={biz.data.name} description={biz.data.description} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<article>
+				<div class="header">
+					<span class="category-badge">{biz.data.category}</span>
+					<h1>{biz.data.name}</h1>
+					<p class="description">{biz.data.description}</p>
+					<p class="location">📍 {biz.data.location}</p>
+				</div>
+				<div class="contact-info">
+					{biz.data.phone && <div class="contact-item">📞 {biz.data.phone}</div>}
+					{biz.data.email && <div class="contact-item">✉️ {biz.data.email}</div>}
+					{biz.data.website && <a href={biz.data.website} target="_blank" class="website-link">🌐 Visit Website</a>}
+				</div>
+				<hr />
+				<div class="content">
+					<Content />
+				</div>
+			</article>
+			<a href="/directory" class="back-link">← Back to Directory</a>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main {
+		max-width: 720px;
+		margin: 0 auto;
+		padding: 1em;
+	}
+	.header {
+		text-align: center;
+		padding: 2em 0;
+	}
+	.category-badge {
+		display: inline-block;
+		padding: 0.25em 0.75em;
+		background: var(--zim-green);
+		color: #fff;
+		border-radius: 4px;
+		font-size: 0.8em;
+		font-weight: bold;
+		text-transform: uppercase;
+		margin-bottom: 1em;
+	}
+	h1 {
+		margin: 0 0 0.5em 0;
+	}
+	.description {
+		color: rgb(var(--gray));
+		font-size: 1.1em;
+		margin-bottom: 0.5em;
+	}
+	.location {
+		color: rgb(var(--gray));
+	}
+	.contact-info {
+		display: flex;
+		gap: 2em;
+		justify-content: center;
+		flex-wrap: wrap;
+		padding: 1.5em;
+		background: rgb(var(--gray-light));
+		border-radius: 8px;
+		margin: 2em 0;
+	}
+	.contact-item {
+		color: rgb(var(--gray-dark));
+	}
+	.website-link {
+		display: inline-block;
+		padding: 0.5em 1em;
+		background: var(--zim-green);
+		color: #fff;
+		text-decoration: none;
+		border-radius: 6px;
+		font-weight: 600;
+	}
+	.website-link:hover {
+		background: #1a6b2a;
+	}
+	hr {
+		margin: 2em 0;
+	}
+	.content {
+		line-height: 1.8;
+	}
+	.back-link {
+		display: inline-block;
+		margin-top: 2em;
+		color: rgb(var(--gray));
+		text-decoration: none;
+	}
+	.back-link:hover {
+		color: var(--zim-green);
+	}
+</style>

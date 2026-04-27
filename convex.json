@@ -1,0 +1,16 @@
+{
+  "node": "20",
+  "generators": {},
+  "functions": "./convex/**/*",
+  "auth": {
+    "providers": [
+      {
+        "domain": "email",
+        "noSignUp": false
+      }
+    ],
+    "session": {
+      "duration": 1296000
+    }
+  }
+}

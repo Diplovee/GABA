@@ -8,8 +8,14 @@ import HeaderLink from './HeaderLink.astro';
 		<h2><a href="/">{SITE_TITLE}</a></h2>
 		<div class="internal-links">
 			<HeaderLink href="/">Home</HeaderLink>
+			<HeaderLink href="/products">Products</HeaderLink>
 			<HeaderLink href="/blog">Blog</HeaderLink>
+			<HeaderLink href="/news">News</HeaderLink>
+			<HeaderLink href="/directory">Directory</HeaderLink>
 			<HeaderLink href="/about">About</HeaderLink>
+		</div>
+		<div class="vendor-cta">
+			<a href="/vendor" class="vendor-btn">Sell on GABA</a>
 		</div>
 		<div class="social-links">
 			<a href="https://m.webtoo.ls/@astro" target="_blank">
@@ -48,10 +54,12 @@ import HeaderLink from './HeaderLink.astro';
 		padding: 0 1em;
 		background: white;
 		box-shadow: 0 2px 8px rgba(var(--black), 5%);
+		border-bottom: 3px solid;
+		border-image: linear-gradient(90deg, var(--zim-green), var(--zim-gold), var(--zim-red)) 1;
 	}
 	h2 {
 		margin: 0;
-		font-size: 1em;
+		font-size: 1.1em;
 	}
 
 	h2 a,
@@ -77,8 +85,24 @@ import HeaderLink from './HeaderLink.astro';
 	.social-links a {
 		display: flex;
 	}
+	.vendor-cta {
+		margin-left: 1em;
+	}
+	.vendor-btn {
+		padding: 0.5em 1em;
+		background: var(--zim-green);
+		color: white !important;
+		border-radius: 6px;
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 0.9em;
+	}
+	.vendor-btn:hover {
+		background: #1a6b2a;
+	}
 	@media (max-width: 720px) {
-		.social-links {
+		.social-links,
+		.vendor-cta {
 			display: none;
 		}
 	}

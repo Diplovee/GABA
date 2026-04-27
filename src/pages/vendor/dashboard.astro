@@ -1,0 +1,291 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="Vendor Dashboard | GABA" description="Manage your products and subscription" />
+	</head>
+	<body>
+		<Header />
+		<main class="dashboard">
+			<div class="dashboard-header">
+				<h1>Vendor Dashboard</h1>
+				<p>Welcome back! Manage your products and subscription.</p>
+			</div>
+
+			<div class="dashboard-grid">
+				<section class="stats-section">
+					<div class="stat-card">
+						<span class="stat-icon">📦</span>
+						<div class="stat-info">
+							<span class="stat-number" id="product-count">-</span>
+							<span class="stat-label">Products</span>
+						</div>
+					</div>
+					<div class="stat-card">
+						<span class="stat-icon">💰</span>
+						<div class="stat-info">
+							<span class="stat-number" id="active-products">-</span>
+							<span class="stat-label">Active</span>
+						</div>
+					</div>
+					<div class="stat-card">
+						<span class="stat-icon">📊</span>
+						<div class="stat-info">
+							<span class="stat-number" id="subscription-tier">-</span>
+							<span class="stat-label">Plan</span>
+						</div>
+					</div>
+				</section>
+
+				<section class="subscription-card" id="subscription-section">
+					<div class="subscription-info">
+						<h2>Your Subscription</h2>
+						<div id="subscription-status">
+							<p class="loading">Loading...</p>
+						</div>
+					</div>
+					<a href="/pricing" class="btn-secondary">Manage Subscription</a>
+				</section>
+
+				<section class="products-section">
+					<div class="section-header">
+						<h2>Your Products</h2>
+						<a href="/vendor/products/new" class="btn-primary">+ Add Product</a>
+					</div>
+					<div id="products-list" class="products-list">
+						<p class="loading">Loading products...</p>
+					</div>
+				</section>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<script>
+	async function loadDashboard() {
+		try {
+			const response = await fetch('/api/products');
+			const products = await response.json();
+			
+			const productCount = document.getElementById('product-count');
+			const activeProducts = document.getElementById('active-products');
+			const productsList = document.getElementById('products-list');
+			
+			if (productCount) productCount.textContent = products.length.toString();
+			if (activeProducts) activeProducts.textContent = products.filter((p: any) => p.status === 'active').length.toString();
+			
+			if (productsList) {
+				if (products.length === 0) {
+					productsList.innerHTML = `
+						<div class="empty-state">
+							<p>No products yet</p>
+							<a href="/vendor/products/new" class="btn-primary">Add Your First Product</a>
+						</div>
+					`;
+				} else {
+					productsList.innerHTML = products.map((product: any) => `
+						<div class="product-item">
+							<div class="product-info">
+								<h3>${product.name}</h3>
+								<span class="category-badge">${product.category}</span>
+								<span class="status-badge ${product.status}">${product.status}</span>
+							</div>
+							<div class="product-actions">
+								<a href="/vendor/products/edit/${product._id}" class="btn-edit">Edit</a>
+								<a href="/products/${product._id}" target="_blank" class="btn-view">View</a>
+							</div>
+						</div>
+					`).join('');
+				}
+			}
+		} catch (error) {
+			console.error('Failed to load dashboard:', error);
+			const productsList = document.getElementById('products-list');
+			if (productsList) {
+				productsList.innerHTML = '<p class="error">Failed to load products. Please refresh the page.</p>';
+			}
+		}
+	}
+
+	loadDashboard();
+</script>
+
+<style>
+	.dashboard {
+		max-width: 1000px;
+		margin: 0 auto;
+		padding: 2em 1em;
+	}
+	.dashboard-header {
+		margin-bottom: 2em;
+	}
+	.dashboard-header h1 {
+		color: var(--zim-green);
+		margin-bottom: 0.5em;
+	}
+	.dashboard-header p {
+		color: rgb(var(--gray));
+	}
+	.dashboard-grid {
+		display: grid;
+		gap: 2em;
+	}
+	.stats-section {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		gap: 1em;
+	}
+	.stat-card {
+		display: flex;
+		align-items: center;
+		gap: 1em;
+		padding: 1.5em;
+		background: white;
+		border-radius: 12px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+	}
+	.stat-icon {
+		font-size: 2em;
+	}
+	.stat-info {
+		display: flex;
+		flex-direction: column;
+	}
+	.stat-number {
+		font-size: 1.5em;
+		font-weight: bold;
+		color: rgb(var(--gray-dark));
+	}
+	.stat-label {
+		color: rgb(var(--gray));
+		font-size: 0.9em;
+	}
+	.subscription-card {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 1.5em;
+		background: linear-gradient(135deg, var(--zim-green), #2d7a38);
+		border-radius: 12px;
+		color: white;
+	}
+	.subscription-info h2 {
+		color: white;
+		margin-bottom: 0.5em;
+	}
+	.btn-secondary {
+		padding: 0.75em 1.5em;
+		background: white;
+		color: var(--zim-green);
+		text-decoration: none;
+		border-radius: 8px;
+		font-weight: 600;
+	}
+	.btn-secondary:hover {
+		background: var(--zim-gold);
+	}
+	.products-section {
+		background: white;
+		border-radius: 12px;
+		padding: 1.5em;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+	}
+	.section-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1.5em;
+	}
+	.section-header h2 {
+		margin: 0;
+	}
+	.btn-primary {
+		padding: 0.5em 1em;
+		background: var(--zim-green);
+		color: white;
+		text-decoration: none;
+		border-radius: 6px;
+		font-weight: 600;
+	}
+	.products-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
+	}
+	.product-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 1em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 8px;
+	}
+	.product-info h3 {
+		margin: 0 0 0.5em 0;
+	}
+	.category-badge {
+		display: inline-block;
+		padding: 0.2em 0.5em;
+		background: var(--zim-gold);
+		color: black;
+		border-radius: 4px;
+		font-size: 0.75em;
+		font-weight: 600;
+		margin-right: 0.5em;
+	}
+	.status-badge {
+		display: inline-block;
+		padding: 0.2em 0.5em;
+		border-radius: 4px;
+		font-size: 0.75em;
+		font-weight: 600;
+	}
+	.status-badge.active {
+		background: rgba(49, 155, 50, 0.2);
+		color: var(--zim-green);
+	}
+	.status-badge.draft {
+		background: rgba(236, 177, 17, 0.2);
+		color: var(--zim-gold);
+	}
+	.status-badge.archived {
+		background: rgba(215, 20, 61, 0.2);
+		color: var(--zim-red);
+	}
+	.product-actions {
+		display: flex;
+		gap: 0.5em;
+	}
+	.btn-edit, .btn-view {
+		padding: 0.5em 1em;
+		text-decoration: none;
+		border-radius: 6px;
+		font-size: 0.9em;
+	}
+	.btn-edit {
+		background: rgb(var(--gray-light));
+		color: rgb(var(--gray-dark));
+	}
+	.btn-view {
+		background: var(--zim-green);
+		color: white;
+	}
+	.empty-state {
+		text-align: center;
+		padding: 2em;
+		color: rgb(var(--gray));
+	}
+	.loading, .error {
+		text-align: center;
+		padding: 2em;
+	}
+	.error {
+		color: var(--zim-red);
+	}
+</style>
