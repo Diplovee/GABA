@@ -139,6 +139,7 @@ export const create = mutation({
       productStatus: args.productStatus || 'beta',
       reviewStatus: 'pending',
       upvoteCount: 0,
+      commentCount: 0,
       status: args.status || 'draft',
       createdAt: now,
       updatedAt: now,
@@ -281,5 +282,94 @@ export const upvote = mutation({
     });
 
     return { upvoteCount, voted: true };
+  },
+});
+
+export const listComments = query({
+  args: { productId: v.id('products') },
+  handler: async (ctx, { productId }) => {
+    const comments = await ctx.db.query('productComments')
+      .withIndex('byProduct', (q) => q.eq('productId', productId))
+      .collect();
+
+    return await Promise.all(comments.map(async (comment) => {
+      const author = await ctx.db.get(comment.userId);
+      return {
+        ...comment,
+        authorName: author?.name || author?.businessName || 'GABA member',
+        authorImage: author?.image,
+      };
+    }));
+  },
+});
+
+export const createComment = mutation({
+  args: {
+    productId: v.id('products'),
+    body: v.string(),
+  },
+  handler: async (ctx, { productId, body }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Sign in to comment on products');
+    }
+
+    const product = await ctx.db.get(productId);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    const cleanBody = body.trim();
+    if (cleanBody.length < 2) {
+      throw new Error('Comment is too short');
+    }
+    if (cleanBody.length > 1000) {
+      throw new Error('Comment is too long');
+    }
+
+    const now = Date.now();
+    const commentId = await ctx.db.insert('productComments', {
+      productId,
+      userId,
+      body: cleanBody,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    const commentCount = (product.commentCount || 0) + 1;
+    await ctx.db.patch(productId, {
+      commentCount,
+      updatedAt: now,
+    });
+
+    return { commentId, commentCount };
+  },
+});
+
+export const deleteComment = mutation({
+  args: { commentId: v.id('productComments') },
+  handler: async (ctx, { commentId }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
+    const comment = await ctx.db.get(commentId);
+    if (!comment) {
+      throw new Error('Comment not found');
+    }
+    if (comment.userId !== userId) {
+      throw new Error('Unauthorized');
+    }
+
+    const product = await ctx.db.get(comment.productId);
+    await ctx.db.delete(commentId);
+
+    if (product) {
+      await ctx.db.patch(comment.productId, {
+        commentCount: Math.max((product.commentCount || 1) - 1, 0),
+        updatedAt: Date.now(),
+      });
+    }
   },
 });

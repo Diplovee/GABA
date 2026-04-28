@@ -62,6 +62,7 @@ export default defineSchema({
       v.literal('rejected')
     )),
     upvoteCount: v.optional(v.number()),
+    commentCount: v.optional(v.number()),
     status: v.union(v.literal('draft'), v.literal('active'), v.literal('archived')),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -79,6 +80,16 @@ export default defineSchema({
   })
     .index('byProduct', ['productId'])
     .index('byUserProduct', ['userId', 'productId']),
+
+  productComments: defineTable({
+    productId: v.id('products'),
+    userId: v.id('users'),
+    body: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index('byProduct', ['productId', 'createdAt'])
+    .index('byUser', ['userId']),
 
   subscriptions: defineTable({
     userId: v.id('users'),

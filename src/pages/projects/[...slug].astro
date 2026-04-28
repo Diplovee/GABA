@@ -3,7 +3,6 @@ import { getCollection, render } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
 
 export async function getStaticPaths() {
 	const projects = await getCollection('projects');
@@ -15,6 +14,14 @@ export async function getStaticPaths() {
 
 const project = Astro.props;
 const { Content } = await render(project);
+
+const categoryLabels: Record<string, string> = {
+	webapp: 'Web App',
+	mobile: 'Mobile App',
+	website: 'Website',
+};
+
+const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase() || 'GABA';
 ---
 
 <!doctype html>
@@ -24,99 +31,636 @@ const { Content } = await render(project);
 	</head>
 	<body>
 		<Header />
-		<main>
-			<article>
-				<div class="header">
-					<span class="category-badge">{project.data.category}</span>
+		<main class="product-page">
+			<section class="hero-band">
+				<div class="hero-main">
+					<div class="product-topline">
+						<span class="category-badge">{categoryLabels[project.data.category] || project.data.category}</span>
+						<span class="status-chip">Launching today</span>
+					</div>
 					<h1>{project.data.title}</h1>
-					<p class="description">{project.data.description}</p>
-					<div class="links">
-						{project.data.url && <a href={project.data.url} target="_blank" class="btn-primary">View Live Demo</a>}
-						{project.data.repo && <a href={project.data.repo} target="_blank" class="btn-secondary">Source Code</a>}
+					<p class="tagline">{project.data.description}</p>
+					<p class="support-line">What problem does this solve, for who, and where?</p>
+					<div class="hero-actions">
+						{project.data.url && <a href={project.data.url} target="_blank" rel="noreferrer" class="btn-primary">Visit website</a>}
+						{project.data.repo && <a href={project.data.repo} target="_blank" rel="noreferrer" class="btn-secondary">Source code</a>}
 					</div>
 				</div>
-				<hr />
-				<div class="content">
-					<Content />
+
+				<div class="meta-strip">
+					<div class="meta-row">
+						<span>Country</span>
+						<strong>Zimbabwe</strong>
+					</div>
+					<div class="meta-row">
+						<span>Launch ID</span>
+						<strong class="mono">ZW-{slugSeed}</strong>
+					</div>
+					<div class="meta-row">
+						<span>Published</span>
+						<strong>{project.data.pubDate.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}</strong>
+					</div>
+					<div class="meta-row">
+						<span>GABA line</span>
+						<strong>Built by the left out, for the left out.</strong>
+					</div>
 				</div>
-			</article>
-			<a href="/projects" class="back-link">← Back to Projects</a>
+			</section>
+
+			<section class="visual-band">
+				<div class="visual-frame">
+					{project.data.heroImage ? (
+						<img src={project.data.heroImage.src} alt={project.data.title} />
+					) : (
+						<div class="visual-placeholder">
+							<div class="mark">G</div>
+							<div>
+								<p>Screen not provided</p>
+								<span>Use screenshots or a hero image when available.</span>
+							</div>
+						</div>
+					)}
+				</div>
+			</section>
+
+			<section class="detail-grid">
+				<section class="detail-main">
+					<h2>What it does</h2>
+					<div class="prose">
+						<Content />
+					</div>
+				</section>
+
+				<aside class="detail-side">
+					<div class="detail-row">
+						<span>Category</span>
+						<strong>{categoryLabels[project.data.category] || project.data.category}</strong>
+					</div>
+					<div class="detail-row">
+						<span>Launch Type</span>
+						<strong>Reviewed listing</strong>
+					</div>
+					<div class="detail-row">
+						<span>Focus</span>
+						<strong>{project.data.description}</strong>
+					</div>
+					<div class="detail-row">
+						<span>Links</span>
+						<strong class="links-line">
+							{project.data.url && <a href={project.data.url} target="_blank" rel="noreferrer">Open product</a>}
+							{project.data.repo && <><span class="sep">•</span><a href={project.data.repo} target="_blank" rel="noreferrer">Open repository</a></>}
+							<span class="sep">•</span><a href="/vendor/products/new">Submit your product</a>
+						</strong>
+					</div>
+				</aside>
+			</section>
+
+			<section class="discussion-band">
+				<div class="discussion-head">
+					<h2>Discussion</h2>
+					<span>3 comments</span>
+				</div>
+
+				<div class="comment-composer">
+					<div class="composer-avatar">@</div>
+					<div class="composer-body">
+						<textarea placeholder="What do you think?"></textarea>
+						<div class="composer-actions">
+							<button type="button" class="composer-chip">Attach</button>
+							<button type="button" class="composer-submit">Comment</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="comment-thread">
+					<article class="comment">
+						<div class="comment-head">
+							<div class="comment-avatar">FM</div>
+							<div>
+								<strong>Farai Moyo</strong>
+								<span>Maker · 7d ago</span>
+							</div>
+						</div>
+						<p>This is built around one clear problem: keeping local produce moving without turning it into a logistics maze.</p>
+						<div class="comment-actions">
+							<button type="button">Upvote (5)</button>
+							<button type="button">Reply</button>
+							<button type="button">Share</button>
+						</div>
+					</article>
+
+					<article class="comment reply">
+						<div class="comment-head">
+							<div class="comment-avatar">NK</div>
+							<div>
+								<strong>Nadia K.</strong>
+								<span>1h ago</span>
+							</div>
+						</div>
+						<p>Love the country-first framing. The problem statement makes this feel much clearer than a generic delivery app.</p>
+						<div class="comment-actions">
+							<button type="button">Upvote</button>
+							<button type="button">Reply</button>
+							<button type="button">Share</button>
+						</div>
+					</article>
+
+					<article class="comment reply nested">
+						<div class="comment-head">
+							<div class="comment-avatar">FM</div>
+							<div>
+								<strong>Farai Moyo</strong>
+								<span>1h ago</span>
+							</div>
+						</div>
+						<p>That’s the filter GABA should reward: clear problem, clear maker, clear market.</p>
+						<div class="comment-actions">
+							<button type="button">Upvote (1)</button>
+							<button type="button">Reply</button>
+							<button type="button">Share</button>
+						</div>
+					</article>
+				</div>
+			</section>
+
+			<section class="footer-band">
+				<a href="/launches" class="back-link">← Back to Drops</a>
+			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
 
 <style>
-	main {
-		max-width: 720px;
-		margin: 0 auto;
-		padding: 1em;
+	.product-page {
+		width: min(1280px, calc(100% - 3rem));
+		max-width: none;
+		padding: 2rem 0 4rem;
 	}
-	.header {
-		text-align: center;
-		padding: 2em 0;
+	.hero-band {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 320px;
+		gap: 1.5rem;
+		padding: 0.25rem 0.75rem 1.5rem;
+		padding-bottom: 1.5rem;
+		margin-bottom: 1.5rem;
+		border-bottom: 1px solid var(--ui-border);
+	}
+	.product-topline {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.6rem;
+		align-items: center;
+		margin-bottom: 0.85rem;
+	}
+	.category-badge,
+	.status-chip {
+		display: inline-flex;
+		align-items: center;
+		min-height: 36px;
+		padding: 0 1rem;
+		border-radius: 6px;
+		font-size: 0.78rem;
+		font-weight: 950;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
 	}
 	.category-badge {
-		display: inline-block;
-		padding: 0.25em 0.75em;
-		background: var(--zim-red);
-		color: #fff;
-		border-radius: 4px;
-		font-size: 0.8em;
-		font-weight: bold;
-		text-transform: uppercase;
-		margin-bottom: 1em;
+		border: 1px solid var(--accent);
+		background: var(--accent);
+		color: white;
 	}
-	h1 {
-		margin: 0 0 0.5em 0;
+	.status-chip {
+		border: 1px solid var(--accent);
+		background: var(--accent);
+		color: white;
 	}
-	.description {
-		color: rgb(var(--gray));
-		font-size: 1.1em;
+	.hero-main h1 {
+		margin: 0;
+		color: #0f172a;
+		max-width: none;
+		font-size: clamp(1.7rem, 2.6vw, 2.65rem);
+		font-weight: 900;
+		letter-spacing: -0.03em;
+		line-height: 1.06;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
-	.links {
+	.tagline {
+		max-width: 860px;
+		margin: 1rem 0 0;
+		color: #334155;
+		font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+		line-height: 1.6;
+	}
+	.support-line {
+		max-width: 760px;
+		margin: 1rem 0 0;
+		color: #64748b;
+		font-size: 0.95rem;
+		font-weight: 650;
+	}
+	.hero-actions {
 		display: flex;
-		gap: 1em;
-		justify-content: center;
-		margin-top: 1.5em;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+		margin-top: 1.5rem;
 	}
 	.btn-primary,
 	.btn-secondary {
-		padding: 0.75em 1.5em;
-		border-radius: 8px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 40px;
+		padding: 0 1rem;
+		border-radius: 6px;
+		font-size: 0.78rem;
+		font-weight: 950;
+		letter-spacing: 0.1em;
 		text-decoration: none;
-		font-weight: 600;
-		transition: all 0.2s;
+		text-transform: uppercase;
 	}
 	.btn-primary {
-		background: var(--zim-green);
-		color: #fff;
+		background: var(--accent);
+		color: white;
 	}
 	.btn-primary:hover {
-		background: #1a6b2a;
+		background: var(--accent-dark);
+		color: white;
 	}
 	.btn-secondary {
-		background: transparent;
-		border: 2px solid var(--zim-green);
-		color: var(--zim-green);
+		border: 1px solid var(--accent);
+		background: var(--accent);
+		color: white;
 	}
 	.btn-secondary:hover {
-		background: var(--zim-green);
-		color: #fff;
+		background: var(--accent-dark);
+		border-color: var(--accent-dark);
+		color: white;
 	}
-	hr {
-		margin: 2em 0;
+	.meta-strip {
+		display: grid;
+		gap: 0;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		overflow: hidden;
 	}
-	.content {
-		line-height: 1.8;
+	.meta-row {
+		padding: 0.9rem 0.95rem;
+		border-bottom: 1px solid var(--ui-border);
 	}
-	.back-link {
-		display: inline-block;
-		margin-top: 2em;
-		color: rgb(var(--gray));
+	.meta-row:last-child {
+		border-bottom: 0;
+	}
+	.meta-row span {
+		display: block;
+		margin-bottom: 0.35rem;
+		color: #94a3b8;
+		font-size: 0.68rem;
+		font-weight: 950;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+	.meta-row strong {
+		color: #0f172a;
+		font-size: 0.95rem;
+		line-height: 1.45;
+	}
+	.visual-band {
+		margin-top: 1.5rem;
+	}
+	.visual-frame {
+		overflow: hidden;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: #0f172a;
+	}
+	.visual-frame img {
+		display: block;
+		width: 100%;
+		height: auto;
+		border-radius: 0;
+	}
+	.visual-placeholder {
+		display: grid;
+		grid-template-columns: 76px minmax(0, 1fr);
+		gap: 1rem;
+		align-items: center;
+		padding: 2rem;
+		min-height: 260px;
+		background:
+			radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), transparent 28%),
+			linear-gradient(135deg, #0f172a 0%, #111827 100%);
+		color: white;
+	}
+	.mark {
+		display: grid;
+		place-items: center;
+		width: 76px;
+		height: 76px;
+		border-radius: 8px;
+		background: rgba(255, 255, 255, 0.08);
+		font-size: 2rem;
+		font-weight: 900;
+	}
+	.visual-placeholder p {
+		margin: 0;
+		font-size: 1.2rem;
+		font-weight: 850;
+	}
+	.visual-placeholder span {
+		display: block;
+		margin-top: 0.35rem;
+		color: #cbd5e1;
+	}
+	.detail-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 340px;
+		gap: 1.5rem;
+		padding-inline: 0.75rem;
+		margin-top: 1.5rem;
+	}
+	.discussion-band {
+		padding: 1.75rem 0.75rem 0;
+	}
+	.discussion-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1.1rem;
+		padding-bottom: 0.95rem;
+		border-bottom: 1px solid var(--ui-border);
+	}
+	.discussion-head h2 {
+		margin: 0;
+		color: #0f172a;
+		font-size: 11px;
+		font-weight: 950;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	.discussion-head span {
+		color: #94a3b8;
+		font-size: 0.78rem;
+		font-weight: 850;
+	}
+	.comment-composer {
+		display: grid;
+		grid-template-columns: 44px minmax(0, 1fr);
+		gap: 0.9rem;
+		padding: 1rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		background: white;
+	}
+	.composer-avatar,
+	.comment-avatar {
+		display: grid;
+		place-items: center;
+		width: 44px;
+		height: 44px;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: var(--ui-soft);
+		color: #0f172a;
+		font-size: 0.76rem;
+		font-weight: 900;
+	}
+	.composer-body textarea {
+		display: block;
+		width: 100%;
+		min-height: 96px;
+		box-sizing: border-box;
+		padding: 0.95rem 1rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: #fcfcfd;
+		color: #0f172a;
+		font: inherit;
+		font-size: 0.95rem;
+		resize: vertical;
+	}
+	.composer-body textarea::placeholder {
+		color: #94a3b8;
+	}
+	.composer-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.65rem;
+		margin-top: 0.75rem;
+	}
+	.composer-chip,
+	.composer-submit {
+		min-height: 38px;
+		padding: 0 1rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: white;
+		color: #334155;
+		font: inherit;
+		font-size: 0.78rem;
+		font-weight: 900;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.composer-submit {
+		border-color: var(--accent);
+		background: var(--accent);
+		color: white;
+	}
+	.comment-thread {
+		display: grid;
+		gap: 0;
+		margin-top: 1rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		overflow: hidden;
+		background: white;
+	}
+	.comment {
+		padding: 1rem;
+		border-bottom: 1px solid var(--ui-border);
+	}
+	.comment:last-child {
+		border-bottom: 0;
+	}
+	.comment.reply {
+		margin-left: 2rem;
+		padding-left: 1rem;
+		border-left: 1px solid var(--ui-border);
+	}
+	.comment.reply.nested {
+		margin-left: 4rem;
+	}
+	.comment-head {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+	.comment-head strong {
+		display: block;
+		color: #0f172a;
+		font-size: 0.98rem;
+		font-weight: 900;
+	}
+	.comment-head span {
+		display: block;
+		margin-top: 0.15rem;
+		color: #94a3b8;
+		font-size: 0.76rem;
+		font-weight: 750;
+	}
+	.comment p {
+		margin: 0.85rem 0 0;
+		color: #334155;
+		line-height: 1.7;
+	}
+	.comment-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin-top: 0.9rem;
+		padding-top: 0.85rem;
+		border-top: 1px solid var(--ui-border);
+	}
+	.comment-actions button {
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: #334155;
+		font: inherit;
+		font-size: 0.8rem;
+		font-weight: 850;
+		letter-spacing: 0.02em;
+	}
+	.comment-actions button:hover {
+		color: var(--accent);
+	}
+	.detail-main,
+	.detail-side {
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: white;
+	}
+	.detail-main {
+		padding: 1.5rem;
+	}
+	.detail-main h2 {
+		margin: 0 0 1rem;
+		color: #0f172a;
+		font-size: 11px;
+		font-weight: 950;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	.detail-side {
+		display: grid;
+		align-content: start;
+	}
+	.detail-row {
+		padding: 1rem 0.95rem;
+		border-bottom: 1px solid var(--ui-border);
+	}
+	.detail-row:last-child {
+		border-bottom: 0;
+	}
+	.detail-row span {
+		display: block;
+		color: #94a3b8;
+		font-size: 0.68rem;
+		font-weight: 950;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+	.detail-row strong {
+		display: block;
+		margin-top: 0.35rem;
+		color: #334155;
+		line-height: 1.55;
+		font-weight: 650;
+	}
+	.links-line {
+		display: inline;
+	}
+	.detail-row a {
+		color: #0f172a;
+		font-weight: 800;
 		text-decoration: none;
 	}
+	.detail-row a:hover {
+		color: var(--accent);
+	}
+	.sep {
+		margin: 0 0.5rem;
+		color: #cbd5e1;
+	}
+	.footer-band {
+		padding-top: 1.5rem;
+	}
+	.back-link {
+		color: #64748b;
+		font-size: 0.82rem;
+		font-weight: 900;
+		letter-spacing: 0.08em;
+		text-decoration: none;
+		text-transform: uppercase;
+	}
 	.back-link:hover {
-		color: var(--zim-green);
+		color: var(--accent);
+	}
+	:global(.prose) {
+		color: #334155;
+		line-height: 1.8;
+	}
+	:global(.prose h1),
+	:global(.prose h2),
+	:global(.prose h3),
+	:global(.prose h4) {
+		margin-top: 1.6rem;
+		color: #0f172a;
+	}
+	:global(.prose ul) {
+		padding-left: 1.2rem;
+	}
+	:global(.prose a) {
+		color: var(--accent);
+	}
+	@media (max-width: 960px) {
+		.product-page {
+			width: min(100% - 1.5rem, 1280px);
+		}
+		.hero-band,
+		.detail-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 640px) {
+		.discussion-band,
+		.detail-grid {
+			padding-inline: 0;
+		}
+		.comment.reply {
+			margin-left: 1rem;
+		}
+		.comment.reply.nested {
+			margin-left: 1.75rem;
+		}
+		.hero-main h1 {
+			white-space: normal;
+			overflow: visible;
+			text-overflow: clip;
+		}
+		.comment-composer {
+			grid-template-columns: 1fr;
+		}
+		.visual-placeholder {
+			grid-template-columns: 1fr;
+		}
+		.mark {
+			width: 64px;
+			height: 64px;
+		}
 	}
 </style>
