@@ -4,108 +4,140 @@ import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
 
 const categories = [
-  { name: 'Electronics', slug: 'electronics' },
-  { name: 'Clothing', slug: 'clothing' },
-  { name: 'Food & Beverages', slug: 'food' },
-  { name: 'Services', slug: 'services' },
-  { name: 'Art & Crafts', slug: 'art' },
-  { name: 'Health & Beauty', slug: 'health' },
-  { name: 'Education', slug: 'education' },
-  { name: 'Home & Garden', slug: 'home' },
+  { name: 'Apps', slug: 'apps' },
+  { name: 'AI', slug: 'ai' },
+  { name: 'Hardware', slug: 'hardware' },
+  { name: 'SaaS', slug: 'saas' },
+  { name: 'Developer Tools', slug: 'developer-tools' },
+  { name: 'Fintech', slug: 'fintech' },
+  { name: 'Edtech', slug: 'edtech' },
+  { name: 'Gadgets', slug: 'gadgets' },
   { name: 'Other', slug: 'other' },
+];
+
+const statuses = [
+  { name: 'Beta', slug: 'beta' },
+  { name: 'Live', slug: 'live' },
+  { name: 'Open Source', slug: 'open-source' },
+  { name: 'Hiring', slug: 'hiring' },
 ];
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title="Add Product | GABA Vendor" description="Add a new product to your store" />
+		<BaseHead title="Submit Product | GABA" description="Submit an African tech product to GABA for review" />
 	</head>
 	<body>
 		<Header />
 		<main class="product-form-page">
-			<div class="form-header">
-				<a href="/vendor/dashboard" class="back-link">← Back to Dashboard</a>
-				<h1>Add New Product</h1>
-			</div>
+			<div class="form-shell">
+				<aside class="submission-note">
+					<p class="eyebrow">Open submission, reviewed listing</p>
+					<h1>Submit a Product</h1>
+					<p>GABA lists tech products with a real maker, country context, and a clear problem. Approved submissions appear in Best Products and Drops.</p>
+					<div class="standard-card">
+						<span>Listing standard</span>
+						<strong>What problem does this solve, for who, and where?</strong>
+					</div>
+				</aside>
 
-			<form id="productForm" class="product-form">
-				<div class="form-section">
-					<h2>Basic Information</h2>
-					<div class="form-group">
-						<label for="name">Product Name *</label>
-						<input type="text" id="name" name="name" required placeholder="Enter product name" />
-					</div>
-					<div class="form-group">
-						<label for="description">Description *</label>
-						<textarea id="description" name="description" rows="4" required placeholder="Describe your product..."></textarea>
-					</div>
-					<div class="form-row">
+				<form id="productForm" class="product-form">
+					<div class="form-section">
+						<h2>Product</h2>
 						<div class="form-group">
-							<label for="category">Category *</label>
-							<select id="category" name="category" required>
-								<option value="">Select a category</option>
-								{categories.map(cat => (
-									<option value={cat.slug}>{cat.name}</option>
+							<label for="name">Product Name *</label>
+							<input type="text" id="name" name="name" required placeholder="FarmFresh App" />
+						</div>
+						<div class="form-group">
+							<label for="tagline">Tagline *</label>
+							<input type="text" id="tagline" name="tagline" required maxlength="120" placeholder="Fresh produce logistics for local buyers" />
+						</div>
+						<div class="form-group">
+							<label for="description">Short Description *</label>
+							<textarea id="description" name="description" rows="3" required placeholder="Describe what the product does in plain language."></textarea>
+						</div>
+						<div class="form-group">
+							<label for="problemSolved">Problem It Solves *</label>
+							<textarea id="problemSolved" name="problemSolved" rows="4" required placeholder="What problem does this solve, for who, and where?"></textarea>
+						</div>
+						<div class="form-row">
+							<div class="form-group">
+								<label for="country">Country *</label>
+								<input type="text" id="country" name="country" required placeholder="Zimbabwe" />
+							</div>
+							<div class="form-group">
+								<label for="category">Category *</label>
+								<select id="category" name="category" required>
+									<option value="">Select category</option>
+									{categories.map(cat => (
+										<option value={cat.slug}>{cat.name}</option>
+									))}
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="productStatus">Product Status *</label>
+							<select id="productStatus" name="productStatus" required>
+								{statuses.map(status => (
+									<option value={status.slug}>{status.name}</option>
 								))}
 							</select>
 						</div>
-						<div class="form-group">
-							<label for="stock">Stock Quantity *</label>
-							<input type="number" id="stock" name="stock" min="0" value="1" required />
-						</div>
 					</div>
-				</div>
 
-				<div class="form-section">
-					<h2>Pricing</h2>
-					<div class="form-row">
-						<div class="form-group">
-							<label for="price">Price *</label>
-							<input type="number" id="price" name="price" min="0" step="0.01" required placeholder="0.00" />
-						</div>
-						<div class="form-group">
-							<label for="currency">Currency</label>
-							<select id="currency" name="currency">
-								<option value="ZWL">ZWL (Zimbabwe Dollar)</option>
-								<option value="USD">USD (US Dollar)</option>
-							</select>
+					<div class="form-section">
+						<h2>Maker</h2>
+						<div class="form-row">
+							<div class="form-group">
+								<label for="makerName">Maker Name *</label>
+								<input type="text" id="makerName" name="makerName" required placeholder="Your name or studio" />
+							</div>
+							<div class="form-group">
+								<label for="makerLocation">Maker Location *</label>
+								<input type="text" id="makerLocation" name="makerLocation" required placeholder="Harare, Zimbabwe" />
+							</div>
 						</div>
 					</div>
-				</div>
 
-				<div class="form-section">
-					<h2>Links (Optional)</h2>
-					<div class="form-group">
-						<label for="liveUrl">Live Demo URL</label>
-						<input type="url" id="liveUrl" name="liveUrl" placeholder="https://example.com/demo" />
-					</div>
-					<div class="form-row">
+					<div class="form-section">
+						<h2>Links And Media</h2>
 						<div class="form-group">
-							<label for="repoUrl">Repository URL</label>
-							<input type="url" id="repoUrl" name="repoUrl" placeholder="https://github.com/..." />
+							<label for="liveUrl">Product Link *</label>
+							<input type="url" id="liveUrl" name="liveUrl" required placeholder="https://example.com" />
+						</div>
+						<div class="form-row">
+							<div class="form-group">
+								<label for="repoUrl">Repository URL</label>
+								<input type="url" id="repoUrl" name="repoUrl" placeholder="https://github.com/..." />
+							</div>
+							<div class="form-group">
+								<label for="demoUrl">Demo or Video URL</label>
+								<input type="url" id="demoUrl" name="demoUrl" placeholder="Video demo URL" />
+							</div>
 						</div>
 						<div class="form-group">
-							<label for="demoUrl">Additional Demo</label>
-							<input type="url" id="demoUrl" name="demoUrl" placeholder="Video demo URL" />
+							<label for="logo">Logo URL</label>
+							<input type="url" id="logo" name="logo" placeholder="https://example.com/logo.png" />
 						</div>
+						<div class="image-upload">
+							<label for="images">Screenshots</label>
+							<input type="file" id="images" name="images" accept="image/*" multiple />
+							<p class="help-text">Screenshots are previewed locally for now. Add hosted image URLs later when storage is connected.</p>
+						</div>
+						<div id="imagePreview" class="image-preview"></div>
 					</div>
-				</div>
 
-				<div class="form-section">
-					<h2>Product Images</h2>
-					<div class="image-upload">
-						<input type="file" id="images" name="images" accept="image/*" multiple />
-						<p class="help-text">Upload product images (max 5MB each)</p>
+					<div class="review-note">
+						<strong>Review gate:</strong> submitted products enter a pending queue. GABA reviews context, links, and problem clarity before public listing.
 					</div>
-					<div id="imagePreview" class="image-preview"></div>
-				</div>
 
-				<div class="form-actions">
-					<button type="submit" name="status" value="draft" class="btn-secondary">Save as Draft</button>
-					<button type="submit" name="status" value="active" class="btn-primary">Publish Product</button>
-				</div>
-			</form>
+					<div class="form-actions">
+						<button type="submit" name="status" value="draft" class="btn-secondary">Save Draft</button>
+						<button type="submit" name="status" value="draft" class="btn-primary">Submit for Review</button>
+					</div>
+				</form>
+			</div>
 		</main>
 		<Footer />
 	</body>
@@ -113,130 +145,208 @@ const categories = [
 
 <style>
 	.product-form-page {
-		max-width: 700px;
-		margin: 0 auto;
-		padding: 2em 1em;
+		width: min(1180px, calc(100% - 3rem));
+		max-width: none;
+		padding: 3rem 0;
 	}
-	.form-header {
-		margin-bottom: 2em;
+	.form-shell {
+		display: grid;
+		grid-template-columns: 360px minmax(0, 1fr);
+		gap: 3rem;
+		align-items: start;
 	}
-	.back-link {
-		color: rgb(var(--gray));
-		text-decoration: none;
-		font-size: 0.9em;
+	.submission-note {
+		position: sticky;
+		top: 112px;
 	}
-	.back-link:hover {
-		color: var(--zim-green);
+	.eyebrow {
+		margin: 0 0 0.8rem;
+		color: var(--accent);
+		font-size: 0.72rem;
+		font-weight: 950;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
 	}
-	.form-header h1 {
-		color: var(--zim-green);
-		margin-top: 0.5em;
+	.submission-note h1 {
+		margin: 0;
+		color: #0f172a;
+		font-size: clamp(2.3rem, 5vw, 3.6rem);
+		font-weight: 900;
+		letter-spacing: -0.04em;
+	}
+	.submission-note p {
+		margin: 1rem 0 0;
+		color: #475569;
+		line-height: 1.75;
+	}
+	.standard-card {
+		margin-top: 1.5rem;
+		border: 1px solid #0f172a;
+		border-radius: 8px;
+		background: #0f172a;
+		padding: 1.25rem;
+		color: white;
+	}
+	.standard-card span {
+		display: block;
+		margin-bottom: 0.75rem;
+		color: #34d399;
+		font-size: 10px;
+		font-weight: 950;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	.standard-card strong {
+		color: white;
+		font-size: 1.08rem;
+		line-height: 1.4;
 	}
 	.product-form {
+		border: 1px solid var(--ui-border);
+		border-radius: 12px;
 		background: white;
-		border-radius: 16px;
-		padding: 2em;
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		padding: clamp(1.25rem, 3vw, 2rem);
+		box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 	}
 	.form-section {
-		margin-bottom: 2em;
-		padding-bottom: 2em;
-		border-bottom: 1px solid rgb(var(--gray-light));
+		margin-bottom: 2rem;
+		padding-bottom: 2rem;
+		border-bottom: 1px solid #eef2f7;
 	}
 	.form-section:last-of-type {
-		border-bottom: none;
 		margin-bottom: 0;
 	}
 	.form-section h2 {
-		font-size: 1.2em;
-		margin-bottom: 1em;
-		color: rgb(var(--gray-dark));
+		margin: 0 0 1.1rem;
+		color: #0f172a;
+		font-size: 11px;
+		font-weight: 950;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
 	}
-	.form-group {
-		margin-bottom: 1em;
+	.form-group,
+	.image-upload {
+		margin-bottom: 1rem;
 	}
-	.form-group label {
+	.form-group label,
+	.image-upload label {
 		display: block;
-		margin-bottom: 0.5em;
-		font-weight: 600;
-		color: rgb(var(--gray-dark));
+		margin-bottom: 0.45rem;
+		color: #334155;
+		font-size: 0.82rem;
+		font-weight: 850;
 	}
 	.form-group input,
 	.form-group textarea,
 	.form-group select {
+		box-sizing: border-box;
 		width: 100%;
-		padding: 0.75em;
-		border: 2px solid rgb(var(--gray-light));
-		border-radius: 8px;
-		font-size: 1em;
-		font-family: inherit;
+		padding: 0.78rem 0.85rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		background: #fff;
+		color: #0f172a;
+		font: inherit;
+		font-size: 0.95rem;
+	}
+	.form-group textarea {
+		resize: vertical;
 	}
 	.form-group input:focus,
 	.form-group textarea:focus,
 	.form-group select:focus {
-		outline: none;
-		border-color: var(--zim-green);
+		outline: 2px solid #a7f3d0;
+		border-color: var(--accent);
 	}
 	.form-row {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1em;
-	}
-	@media (max-width: 600px) {
-		.form-row {
-			grid-template-columns: 1fr;
-		}
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
 	}
 	.image-upload input {
+		box-sizing: border-box;
 		width: 100%;
-		padding: 1em;
-		border: 2px dashed rgb(var(--gray-light));
+		padding: 1rem;
+		border: 1px dashed #cbd5e1;
 		border-radius: 8px;
+		background: #f8fafc;
 	}
 	.help-text {
-		font-size: 0.85em;
-		color: rgb(var(--gray));
-		margin-top: 0.5em;
+		margin: 0.5rem 0 0;
+		color: #64748b;
+		font-size: 0.82rem;
 	}
 	.image-preview {
 		display: flex;
-		gap: 1em;
+		gap: 0.75rem;
 		flex-wrap: wrap;
-		margin-top: 1em;
+		margin-top: 1rem;
+	}
+	.review-note {
+		margin-top: 1.5rem;
+		border: 1px solid #d1fae5;
+		border-radius: 8px;
+		background: #ecfdf5;
+		padding: 1rem;
+		color: #047857;
+		font-size: 0.88rem;
+		line-height: 1.6;
 	}
 	.form-actions {
 		display: flex;
-		gap: 1em;
 		justify-content: flex-end;
-		margin-top: 2em;
+		gap: 0.75rem;
+		margin-top: 1.5rem;
 	}
 	.btn-primary,
 	.btn-secondary {
-		padding: 0.75em 2em;
-		border: none;
-		border-radius: 8px;
-		font-size: 1em;
-		font-weight: 600;
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
 		cursor: pointer;
+		font: inherit;
+		font-size: 0.78rem;
+		font-weight: 950;
+		letter-spacing: 0.08em;
+		padding: 0.85rem 1.1rem;
+		text-transform: uppercase;
 	}
 	.btn-primary {
-		background: var(--zim-green);
+		border-color: var(--accent);
+		background: var(--accent);
 		color: white;
-	}
-	.btn-secondary {
-		background: rgb(var(--gray-light));
-		color: rgb(var(--gray-dark));
 	}
 	.btn-primary:hover {
-		background: #1a6b2a;
+		background: var(--accent-dark);
+	}
+	.btn-secondary {
+		background: white;
+		color: #475569;
 	}
 	.btn-secondary:hover {
-		background: rgb(var(--gray));
-		color: white;
+		background: #f8fafc;
+		color: #0f172a;
+	}
+	@media (max-width: 860px) {
+		.product-form-page {
+			width: min(100% - 1.5rem, 1180px);
+			padding: 2rem 0;
+		}
+		.form-shell,
+		.form-row {
+			grid-template-columns: 1fr;
+		}
+		.submission-note {
+			position: static;
+		}
+		.form-actions {
+			display: grid;
+		}
 	}
 </style>
 
 <script>
+	import { convexMutation } from '../../../lib/convexAuthClient';
+
 	const form = document.getElementById('productForm') as HTMLFormElement;
 	const imageInput = document.getElementById('images') as HTMLInputElement;
 	const imagePreview = document.getElementById('imagePreview');
@@ -248,10 +358,10 @@ const categories = [
 		imagePreview.innerHTML = '';
 		Array.from(files).forEach(file => {
 			const reader = new FileReader();
-			reader.onload = (e) => {
+			reader.onload = (event) => {
 				const div = document.createElement('div');
-				div.style.cssText = 'width: 100px; height: 100px; border-radius: 8px; overflow: hidden;';
-				div.innerHTML = `<img src="${e.target?.result}" style="width: 100%; height: 100%; object-fit: cover;" />`;
+				div.style.cssText = 'width: 100px; height: 100px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;';
+				div.innerHTML = `<img src="${event.target?.result}" alt="" style="width: 100%; height: 100%; object-fit: cover;" />`;
 				imagePreview?.appendChild(div);
 			};
 			reader.readAsDataURL(file);
@@ -262,26 +372,34 @@ const categories = [
 		e.preventDefault();
 		const formData = new FormData(form);
 		const status = (e.submitter as HTMLButtonElement).value;
+		const optionalUrl = (name: string) => {
+			const value = String(formData.get(name) || '').trim();
+			return value.length > 0 ? value : undefined;
+		};
 		
 		const data = {
-			name: formData.get('name'),
-			description: formData.get('description'),
+			name: String(formData.get('name') || '').trim(),
+			tagline: String(formData.get('tagline') || '').trim(),
+			description: String(formData.get('description') || '').trim(),
+			problemSolved: String(formData.get('problemSolved') || '').trim(),
+			country: String(formData.get('country') || '').trim(),
 			category: formData.get('category'),
-			stock: Number(formData.get('stock')),
-			price: Number(formData.get('price')),
-			currency: formData.get('currency') || 'USD',
-			liveUrl: formData.get('liveUrl') || null,
-			repoUrl: formData.get('repoUrl') || null,
-			demoUrl: formData.get('demoUrl') || null,
+			productStatus: formData.get('productStatus'),
+			makerName: String(formData.get('makerName') || '').trim(),
+			makerLocation: String(formData.get('makerLocation') || '').trim(),
+			liveUrl: optionalUrl('liveUrl'),
+			repoUrl: optionalUrl('repoUrl'),
+			demoUrl: optionalUrl('demoUrl'),
+			logo: optionalUrl('logo'),
 			images: [],
 			status,
 		};
 
-		// In production, this would call Convex mutation
-		console.log('Product data:', data);
-		
-		// For demo, redirect to dashboard
-		alert('Product saved! (Demo mode - Convex integration pending)');
-		window.location.href = '/vendor/dashboard';
+		try {
+			await convexMutation('products:create', data);
+			window.location.href = '/vendor/dashboard';
+		} catch (error: any) {
+			alert(error?.message || 'Could not submit product. Please sign in again and retry.');
+		}
 	});
 </script>

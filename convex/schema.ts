@@ -26,31 +26,59 @@ export default defineSchema({
     userId: v.id('users'),
     name: v.string(),
     description: v.string(),
-    price: v.number(),
+    tagline: v.optional(v.string()),
+    problemSolved: v.optional(v.string()),
+    country: v.optional(v.string()),
+    makerName: v.optional(v.string()),
+    makerLocation: v.optional(v.string()),
+    logo: v.optional(v.string()),
+    price: v.optional(v.number()),
     currency: v.optional(v.string()),
     images: v.array(v.string()),
     category: v.union(
-      v.literal('electronics'),
-      v.literal('clothing'),
-      v.literal('food'),
-      v.literal('services'),
-      v.literal('art'),
-      v.literal('health'),
-      v.literal('education'),
-      v.literal('home'),
+      v.literal('apps'),
+      v.literal('ai'),
+      v.literal('hardware'),
+      v.literal('saas'),
+      v.literal('developer-tools'),
+      v.literal('fintech'),
+      v.literal('edtech'),
+      v.literal('gadgets'),
       v.literal('other')
     ),
     demoUrl: v.optional(v.string()),
     repoUrl: v.optional(v.string()),
     liveUrl: v.optional(v.string()),
-    stock: v.number(),
+    stock: v.optional(v.number()),
+    productStatus: v.optional(v.union(
+      v.literal('beta'),
+      v.literal('live'),
+      v.literal('open-source'),
+      v.literal('hiring')
+    )),
+    reviewStatus: v.optional(v.union(
+      v.literal('pending'),
+      v.literal('approved'),
+      v.literal('rejected')
+    )),
+    upvoteCount: v.optional(v.number()),
     status: v.union(v.literal('draft'), v.literal('active'), v.literal('archived')),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index('byUser', ['userId'])
     .index('byStatus', ['status'])
-    .index('byCategory', ['category']),
+    .index('byCategory', ['category'])
+    .index('byReviewStatus', ['reviewStatus'])
+    .index('byCountry', ['country']),
+
+  productVotes: defineTable({
+    productId: v.id('products'),
+    userId: v.id('users'),
+    createdAt: v.number(),
+  })
+    .index('byProduct', ['productId'])
+    .index('byUserProduct', ['userId', 'productId']),
 
   subscriptions: defineTable({
     userId: v.id('users'),

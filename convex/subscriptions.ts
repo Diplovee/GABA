@@ -8,7 +8,7 @@ export const PRICING_TIERS = {
     price: 5,
     currency: 'USD',
     features: [
-      'Up to 10 products',
+      'Up to 10 product submissions',
       'Standard listing',
       'Email support',
       'EcoCash/M-Pesa payments',
@@ -23,7 +23,7 @@ export const PRICING_TIERS = {
     price: 15,
     currency: 'USD',
     features: [
-      'Unlimited products',
+      'Unlimited product submissions',
       'Featured listings',
       'Priority support',
       'EcoCash/M-Pesa payments',

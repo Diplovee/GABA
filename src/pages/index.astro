@@ -1,24 +1,21 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
-import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 
-const latestBlog = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-)[0];
+const categories = [
+	{ name: 'All Categories', slug: 'all' },
+	{ name: 'AI', slug: 'ai' },
+	{ name: 'Apps', slug: 'apps' },
+	{ name: 'Developer Tools', slug: 'developer-tools' },
+	{ name: 'Fintech', slug: 'fintech' },
+	{ name: 'Hardware', slug: 'hardware' },
+	{ name: 'SaaS', slug: 'saas' },
+];
 
-const latestNews = (await getCollection('news')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-)[0];
-
-const latestProjects = (await getCollection('projects')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
-
-const directoryCount = (await getCollection('directory')).length;
+const countries = ['All Countries', 'Zimbabwe', 'South Africa', 'Kenya', 'Nigeria', 'Rwanda'];
+const statuses = ['All Statuses', 'Beta', 'Live', 'Open Source', 'Hiring'];
 ---
 
 <!doctype html>
@@ -28,112 +25,52 @@ const directoryCount = (await getCollection('directory')).length;
 	</head>
 	<body>
 		<Header />
-		<main>
-			<section class="hero">
-				<div class="hero-content">
-					<h1>Welcome to <span class="highlight">GABA</span></h1>
-					<p class="tagline">Your hub for blogs, news, projects, and local Zimbabwean businesses</p>
-					<div class="cta-buttons">
-						<a href="/directory" class="btn-primary">Explore Directory</a>
-						<a href="/blog" class="btn-secondary">Read Blog</a>
-					</div>
+		<main class="today-page">
+			<section class="today-header" aria-labelledby="today-title">
+				<p class="eyebrow">Zimbabwe-first. Africa-wide.</p>
+				<h1 id="today-title">Top Products Launching Today</h1>
+				<p class="intro">
+					For the first 4 hours of the day, GABA hides ranking pressure so every African tech product gets a real chance to catch your interest.
+					<a href="/about">Read more</a>
+				</p>
+			</section>
+
+			<section class="search-panel" aria-label="Search and filter products">
+				<div class="search-field">
+					<span aria-hidden="true">⌕</span>
+					<input type="search" id="search" placeholder="Search products, makers, problems, countries..." />
 				</div>
-				<div class="hero-stats">
-					<div class="stat">
-						<span class="stat-number">{latestProjects.length}</span>
-						<span class="stat-label">Projects</span>
-					</div>
-					<div class="stat">
-						<span class="stat-number">{directoryCount}</span>
-						<span class="stat-label">Local Businesses</span>
-					</div>
+				<div class="filter-row">
+					<label>
+						<span>Category</span>
+						<select id="category-filter">
+							{categories.map((category) => (
+								<option value={category.slug}>{category.name}</option>
+							))}
+						</select>
+					</label>
+					<label>
+						<span>Country</span>
+						<select id="country-filter">
+							{countries.map((country) => (
+								<option value={country === 'All Countries' ? 'all' : country}>{country}</option>
+							))}
+						</select>
+					</label>
+					<label>
+						<span>Status</span>
+						<select id="status-filter">
+							{statuses.map((status) => (
+								<option value={status === 'All Statuses' ? 'all' : status.toLowerCase().replaceAll(' ', '-')}>{status}</option>
+							))}
+						</select>
+					</label>
 				</div>
 			</section>
 
-			<section class="latest-section">
-				<h2>Latest from the Blog</h2>
-				{latestBlog ? (
-					<a href={`/blog/${latestBlog.id}`} class="card">
-						<h3>{latestBlog.data.title}</h3>
-						<p>{latestBlog.data.description}</p>
-						<span class="date"><FormattedDate date={latestBlog.data.pubDate} /></span>
-					</a>
-				) : (
-					<p class="coming-soon">No blog posts yet. Check back soon!</p>
-				)}
-			</section>
-
-			<section class="latest-section">
-				<h2>Latest News</h2>
-				{latestNews ? (
-					<a href={`/news/${latestNews.id}`} class="card news-card">
-						<span class="category">{latestNews.data.category}</span>
-						<h3>{latestNews.data.title}</h3>
-						<p>{latestNews.data.description}</p>
-						<span class="date"><FormattedDate date={latestNews.data.pubDate} /></span>
-					</a>
-				) : (
-					<p class="coming-soon">No news yet. Stay tuned!</p>
-				)}
-				<a href="/news" class="view-all">View all news →</a>
-			</section>
-
-			<section class="projects-preview">
-				<h2>Featured Projects</h2>
-				<div class="projects-grid">
-					{latestProjects.slice(0, 3).map((project) => (
-						<a href={`/projects/${project.id}`} class="project-card">
-							<span class="category-badge">{project.data.category}</span>
-							<h3>{project.data.title}</h3>
-							<p>{project.data.description}</p>
-						</a>
-					))}
-				</div>
-				<a href="/projects" class="view-all">View all projects →</a>
-			</section>
-
-			<section class="directory-cta">
-				<div class="cta-content">
-					<h2>Discover Local Businesses</h2>
-					<p>Explore our directory of {directoryCount} local Zimbabwean businesses and services.</p>
-					<a href="/directory" class="btn-primary">Browse Directory</a>
-				</div>
-			</section>
-
-			<section class="products-section">
-				<div class="section-header">
-					<h2>Shop Products</h2>
-					<a href="/products" class="view-all">View all products →</a>
-				</div>
-				<p class="section-intro">Browse products from local vendors</p>
-				<div class="products-grid">
-					<div class="product-card">
-						<div class="product-image">📱</div>
-						<div class="product-info">
-							<span class="category-badge">Electronics</span>
-							<h3>Coming Soon</h3>
-							<p>Local products will appear here</p>
-						</div>
-					</div>
-					<div class="product-card">
-						<div class="product-image">👕</div>
-						<div class="product-info">
-							<span class="category-badge">Clothing</span>
-							<h3>Coming Soon</h3>
-							<p>Local products will appear here</p>
-						</div>
-					</div>
-					<div class="product-card">
-						<div class="product-image">🍔</div>
-						<div class="product-info">
-							<span class="category-badge">Food</span>
-							<h3>Coming Soon</h3>
-							<p>Local products will appear here</p>
-						</div>
-					</div>
-				</div>
-				<div class="vendor-banner">
-					<p>Are you a vendor? <a href="/vendor">Start selling today →</a></p>
+			<section class="product-feed" aria-label="Top products">
+				<div id="products-list" class="products-list">
+					<div class="loading-state">Loading African tech products...</div>
 				</div>
 			</section>
 		</main>
@@ -142,262 +79,497 @@ const directoryCount = (await getCollection('directory')).length;
 </html>
 
 <style>
-	.hero {
-		text-align: center;
-		padding: 4em 0;
-		border-bottom: 1px solid rgb(var(--gray-light));
-		margin-bottom: 3em;
+	.today-page {
+		width: min(1280px, calc(100% - 3rem));
+		max-width: none;
+		padding: clamp(2.4rem, 5vw, 4.5rem) 0 4rem;
 	}
-	.hero h1 {
-		font-size: 3em;
-		margin-bottom: 0.5em;
+	.today-header {
+		margin-bottom: 2rem;
 	}
-	.highlight {
-		background: linear-gradient(90deg, var(--zim-green), var(--zim-gold));
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-	}
-	.tagline {
-		color: rgb(var(--gray));
-		font-size: 1.2em;
-		margin-bottom: 2em;
-	}
-	.cta-buttons {
-		display: flex;
-		gap: 1em;
-		justify-content: center;
-		margin-bottom: 2em;
-	}
-	.btn-primary {
-		padding: 0.75em 1.5em;
-		background: var(--zim-green);
-		color: #fff;
-		text-decoration: none;
-		border-radius: 8px;
-		font-weight: 600;
-	}
-	.btn-primary:hover {
-		background: #1a6b2a;
-	}
-	.btn-secondary {
-		padding: 0.75em 1.5em;
-		border: 2px solid var(--zim-green);
-		color: var(--zim-green);
-		text-decoration: none;
-		border-radius: 8px;
-		font-weight: 600;
-	}
-	.btn-secondary:hover {
-		background: var(--zim-green);
-		color: #fff;
-	}
-	.hero-stats {
-		display: flex;
-		justify-content: center;
-		gap: 4em;
-	}
-	.stat {
-		display: flex;
-		flex-direction: column;
-	}
-	.stat-number {
-		font-size: 2.5em;
-		font-weight: bold;
-		color: var(--zim-gold);
-	}
-	.stat-label {
-		color: rgb(var(--gray));
-		font-size: 0.9em;
-	}
-	.latest-section {
-		margin-bottom: 3em;
-	}
-	.latest-section h2 {
-		margin-bottom: 1em;
-		color: var(--zim-green);
-	}
-	.card {
-		display: block;
-		padding: 1.5em;
-		border: 1px solid rgb(var(--gray-light));
-		border-radius: 12px;
-		text-decoration: none;
-		color: inherit;
-		transition: all 0.2s;
-	}
-	.card:hover {
-		box-shadow: var(--box-shadow);
-		transform: translateY(-2px);
-	}
-	.card h3 {
-		margin: 0 0 0.5em 0;
-		color: rgb(var(--gray-dark));
-	}
-	.card p {
-		color: rgb(var(--gray));
-		margin-bottom: 0.5em;
-	}
-	.news-card .category {
-		display: inline-block;
-		padding: 0.25em 0.75em;
-		background: var(--zim-gold);
-		color: #000;
-		border-radius: 4px;
-		font-size: 0.75em;
-		font-weight: bold;
+	.eyebrow {
+		margin: 0 0 0.85rem;
+		color: var(--accent);
+		font-size: 0.72rem;
+		font-weight: 950;
+		letter-spacing: 0.16em;
 		text-transform: uppercase;
-		margin-bottom: 0.5em;
 	}
-	.date {
-		font-size: 0.85em;
-		color: rgb(var(--gray));
-	}
-	.view-all {
-		display: inline-block;
-		margin-top: 1em;
-		color: var(--zim-green);
-		text-decoration: none;
-		font-weight: 600;
-	}
-	.view-all:hover {
-		text-decoration: underline;
-	}
-	.projects-preview {
-		margin-bottom: 3em;
-	}
-	.projects-preview h2 {
-		margin-bottom: 1em;
-		color: var(--zim-red);
-	}
-	.projects-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-		gap: 1.5em;
-	}
-	.project-card {
-		padding: 1.5em;
-		border: 1px solid rgb(var(--gray-light));
-		border-radius: 12px;
-		text-decoration: none;
-		color: inherit;
-		transition: all 0.2s;
-	}
-	.project-card:hover {
-		box-shadow: var(--box-shadow);
-		transform: translateY(-4px);
-	}
-	.category-badge {
-		display: inline-block;
-		padding: 0.25em 0.75em;
-		background: var(--zim-red);
-		color: #fff;
-		border-radius: 4px;
-		font-size: 0.75em;
-		font-weight: bold;
-		text-transform: uppercase;
-		margin-bottom: 0.75em;
-	}
-	.project-card h3 {
-		margin: 0 0 0.5em 0;
-	}
-	.project-card p {
-		color: rgb(var(--gray));
-		font-size: 0.95em;
-	}
-	.directory-cta {
-		background: linear-gradient(135deg, var(--zim-green), #2d7a38);
-		border-radius: 16px;
-		padding: 3em;
-		text-align: center;
-		color: #fff;
-	}
-	.cta-content h2 {
-		color: #fff;
-		margin-bottom: 0.5em;
-	}
-	.cta-content p {
-		margin-bottom: 1.5em;
-		opacity: 0.9;
-	}
-	.directory-cta .btn-primary {
-		background: var(--zim-gold);
-		color: #000;
-	}
-	.directory-cta .btn-primary:hover {
-		background: #c49a0f;
-	}
-	.coming-soon {
-		color: rgb(var(--gray));
-		font-style: italic;
-	}
-	.products-section {
-		margin-bottom: 3em;
-	}
-	.section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 0.5em;
-	}
-	.section-header h2 {
-		color: var(--zim-green);
+	h1 {
+		max-width: 900px;
 		margin: 0;
+		color: #111827;
+		font-size: clamp(2.15rem, 4vw, 3.2rem);
+		font-weight: 900;
+		letter-spacing: -0.035em;
+		line-height: 1.04;
 	}
-	.section-intro {
-		color: rgb(var(--gray));
-		margin-bottom: 1.5em;
+	.intro {
+		max-width: 1080px;
+		margin: 1.8rem 0 0;
+		color: #334155;
+		font-size: clamp(1.02rem, 1.8vw, 1.28rem);
+		line-height: 1.65;
 	}
-	.products-grid {
+	.intro a {
+		color: inherit;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 4px;
+	}
+	.search-panel {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: 1.5em;
-	}
-	.product-card {
+		gap: 0.75rem;
+		margin-bottom: 2.2rem;
+		padding: 1rem;
+		border: 1px solid #e5e7eb;
+		border-radius: 18px;
 		background: white;
-		border-radius: 12px;
-		overflow: hidden;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		transition: transform 0.2s, box-shadow 0.2s;
+		box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 	}
-	.product-card:hover {
-		transform: translateY(-4px);
-		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-	}
-	.product-image {
-		width: 100%;
-		height: 120px;
-		background: linear-gradient(135deg, var(--zim-gold), var(--zim-green));
+	.search-field {
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		font-size: 2.5em;
-	}
-	.product-info {
-		padding: 1em;
-	}
-	.product-info h3 {
-		margin: 0.5em 0 0.25em;
-		font-size: 1em;
-	}
-	.product-info p {
-		color: rgb(var(--gray));
-		font-size: 0.85em;
-		margin: 0;
-	}
-	.vendor-banner {
-		text-align: center;
-		margin-top: 2em;
-		padding: 1.5em;
-		background: rgba(49, 155, 50, 0.1);
+		gap: 0.75rem;
+		min-height: 48px;
+		padding: 0 0.9rem;
+		border: 1px solid #e5e7eb;
 		border-radius: 12px;
+		background: #f8fafc;
+		color: #64748b;
 	}
-	.vendor-banner p {
-		margin: 0;
-		color: rgb(var(--gray-dark));
+	.search-field input {
+		width: 100%;
+		border: 0;
+		outline: 0;
+		background: transparent;
+		color: #111827;
+		font: inherit;
+		font-size: 0.98rem;
+		font-weight: 650;
 	}
-	.vendor-banner a {
-		color: var(--zim-green);
-		font-weight: 600;
+	.filter-row {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.75rem;
+	}
+	.filter-row label {
+		display: grid;
+		gap: 0.35rem;
+	}
+	.filter-row label span {
+		color: #64748b;
+		font-size: 0.68rem;
+		font-weight: 950;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+	.filter-row select {
+		width: 100%;
+		min-height: 42px;
+		padding: 0 0.75rem;
+		border: 1px solid #e5e7eb;
+		border-radius: 12px;
+		background: white;
+		color: #111827;
+		font: inherit;
+		font-size: 0.92rem;
+		font-weight: 750;
+	}
+	.products-list {
+		display: grid;
+		gap: 1.35rem;
+	}
+	:global(.product-row) {
+		display: grid;
+		grid-template-columns: 72px minmax(0, 1fr) 82px 82px;
+		gap: 1.5rem;
+		align-items: center;
+		padding: 0.55rem 0;
+	}
+	:global(.product-logo) {
+		display: grid;
+		width: 64px;
+		height: 64px;
+		place-items: center;
+		border: 1px solid #e2e8f0;
+		border-radius: 15px;
+		background: #f8fafc;
+		color: #111827;
+		font-size: 0.88rem;
+		font-weight: 950;
+		letter-spacing: -0.03em;
+		overflow: hidden;
+		text-decoration: none;
+	}
+	:global(.product-logo img) {
+		width: 100%;
+		height: 100%;
+		border-radius: 0;
+		object-fit: cover;
+	}
+	:global(.product-main) {
+		min-width: 0;
+	}
+	:global(.product-title-line) {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		flex-wrap: wrap;
+	}
+	:global(.product-title-line a) {
+		color: #111827;
+		font-size: 1.08rem;
+		font-weight: 900;
+		letter-spacing: -0.02em;
+		text-decoration: none;
+	}
+	:global(.product-title-line a:hover) {
+		color: var(--accent);
+	}
+	:global(.pitch-badge) {
+		display: inline-flex;
+		align-items: center;
+		min-height: 22px;
+		padding: 0 0.55rem;
+		border-radius: 999px;
+		background: #eef2ff;
+		color: #111827;
+		font-size: 0.68rem;
+		font-weight: 950;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	:global(.product-tagline) {
+		margin: 0.25rem 0 0;
+		color: #334155;
+		font-size: 1.02rem;
+		line-height: 1.45;
+	}
+	:global(.product-meta) {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		flex-wrap: wrap;
+		margin-top: 0.6rem;
+		color: #111827;
+		font-size: 0.9rem;
+		font-weight: 700;
+	}
+	:global(.product-meta svg) {
+		width: 17px;
+		height: 17px;
+		color: #64748b;
+	}
+	:global(.dot) {
+		color: #cbd5e1;
+	}
+	:global(.icon-count),
+	:global(.upvote-btn) {
+		display: grid;
+		width: 66px;
+		height: 66px;
+		place-items: center;
+		border: 2px solid #e5e7eb;
+		border-radius: 17px;
+		background: white;
+		color: #334155;
+		font: inherit;
+		font-size: 1.05rem;
+		font-weight: 850;
+		line-height: 1.1;
+	}
+	:global(.icon-count svg),
+	:global(.upvote-btn svg) {
+		width: 22px;
+		height: 22px;
+	}
+	:global(.icon-count) {
+		gap: 0.2rem;
+	}
+	:global(.upvote-btn) {
+		cursor: pointer;
+	}
+	:global(.upvote-btn:hover) {
+		border-color: #a7f3d0;
+		background: #ecfdf5;
+		color: #047857;
+	}
+	:global(.upvote-btn.is-voted) {
+		border-color: var(--accent);
+		background: #f0fdf4;
+		color: var(--accent);
+		box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.08);
+	}
+	:global(.upvote-btn.is-voted:hover) {
+		border-color: var(--accent);
+		background: #ecfdf5;
+		color: var(--accent);
+	}
+	:global(.upvote-btn.vote-pop) {
+		animation: vote-pop 240ms ease;
+	}
+	@keyframes vote-pop {
+		0% {
+			transform: scale(1);
+		}
+		45% {
+			transform: scale(1.06);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+	.loading-state,
+	:global(.empty-state) {
+		padding: 3rem 1rem;
+		color: #64748b;
+		text-align: center;
+	}
+	@media (max-width: 860px) {
+		.today-page {
+			width: min(100% - 1.5rem, 1280px);
+			padding-top: 2rem;
+		}
+		.filter-row {
+			grid-template-columns: 1fr;
+		}
+		:global(.product-row) {
+			grid-template-columns: 56px minmax(0, 1fr) 58px;
+			gap: 0.9rem;
+			padding: 0.85rem 0;
+		}
+		:global(.product-logo) {
+			width: 52px;
+			height: 52px;
+			border-radius: 13px;
+		}
+		:global(.icon-count) {
+			display: none;
+		}
+		:global(.upvote-btn) {
+			width: 54px;
+			height: 58px;
+			border-radius: 15px;
+			font-size: 0.92rem;
+		}
+		:global(.product-title-line a) {
+			font-size: 1rem;
+		}
+		:global(.product-tagline) {
+			font-size: 0.94rem;
+		}
 	}
 </style>
+
+<script>
+	import { ConvexHttpClient } from 'convex/browser';
+
+	type Product = {
+		_id?: string;
+		name: string;
+		description: string;
+		tagline?: string;
+		problemSolved?: string;
+		country?: string;
+		category: string;
+		makerName?: string;
+		makerLocation?: string;
+		logo?: string;
+		liveUrl?: string | null;
+		demoUrl?: string | null;
+		repoUrl?: string | null;
+		productStatus?: string;
+		status: string;
+		upvoteCount?: number;
+		commentCount?: number;
+	};
+
+	const categoryLabels: Record<string, string> = {
+		apps: 'Apps',
+		ai: 'AI',
+		hardware: 'Hardware',
+		saas: 'SaaS',
+		'developer-tools': 'Developer Tools',
+		fintech: 'Fintech',
+		edtech: 'Edtech',
+		gadgets: 'Gadgets',
+		other: 'Other',
+	};
+
+	const statusLabels: Record<string, string> = {
+		beta: 'Beta',
+		live: 'Live',
+		'open-source': 'Open Source',
+		hiring: 'Hiring',
+	};
+
+	const sampleProducts: Product[] = [
+		{ _id: 'seed-1', name: 'FarmFresh App', tagline: 'Fresh produce logistics for local buyers', description: 'Mobile commerce and logistics for local farm supply chains.', problemSolved: 'Helps restaurants and households buy reliable farm produce from nearby growers.', country: 'Zimbabwe', category: 'apps', makerName: 'Farai Moyo', makerLocation: 'Harare', liveUrl: '/projects/farmfresh-app', productStatus: 'live', status: 'active', upvoteCount: 148, commentCount: 12 },
+		{ _id: 'seed-2', name: 'EcoCar Zim', tagline: 'EV charging discovery and routing for Zimbabwe', description: 'EV charging discovery and mobility intelligence for Zimbabwe.', problemSolved: 'Shows drivers where charging options exist before buying or operating an EV.', country: 'Zimbabwe', category: 'saas', makerName: 'Tariro Labs', makerLocation: 'Harare', liveUrl: '/projects/ecocar-zim', productStatus: 'beta', status: 'active', upvoteCount: 96, commentCount: 8 },
+		{ _id: 'seed-3', name: 'Mbare Market Hub', tagline: 'Inventory and mobile payments for informal traders', description: 'Commerce dashboard for informal trader inventory and payments.', problemSolved: 'Gives market traders a simple way to track stock, sales, and mobile payments.', country: 'Zimbabwe', category: 'fintech', makerName: 'Harare Lab', makerLocation: 'Mbare', liveUrl: '/vendor', productStatus: 'beta', status: 'active', upvoteCount: 81, commentCount: 5 },
+		{ _id: 'seed-4', name: 'Shona AI Tools', tagline: 'Language tooling prototypes for local support and content', description: 'Language tooling prototypes for local customer support and content.', problemSolved: 'Helps teams answer customers and create content in local language contexts.', country: 'Zimbabwe', category: 'ai', makerName: 'Nyasha Code Studio', makerLocation: 'Bulawayo', liveUrl: '/launches', productStatus: 'open-source', status: 'active', upvoteCount: 73, commentCount: 15 },
+	];
+
+	const searchInput = document.getElementById('search') as HTMLInputElement | null;
+	const categoryFilter = document.getElementById('category-filter') as HTMLSelectElement | null;
+	const countryFilter = document.getElementById('country-filter') as HTMLSelectElement | null;
+	const statusFilter = document.getElementById('status-filter') as HTMLSelectElement | null;
+	const productsList = document.getElementById('products-list');
+	let allProducts: Product[] = [];
+
+	const initialQuery = new URLSearchParams(window.location.search).get('q');
+	if (searchInput && initialQuery) {
+		searchInput.value = initialQuery;
+	}
+
+	function escapeHtml(value: unknown) {
+		return String(value ?? '')
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;')
+			.replaceAll("'", '&#039;');
+	}
+
+	function initials(name: string) {
+		return name
+			.split(/\s+/)
+			.filter(Boolean)
+			.slice(0, 2)
+			.map((part) => part[0]?.toUpperCase())
+			.join('');
+	}
+
+	function primaryUrl(product: Product) {
+		return product.liveUrl || product.demoUrl || product.repoUrl || '/vendor/products/new';
+	}
+
+	function tagIcon() {
+		return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>';
+	}
+
+	function commentIcon() {
+		return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg>';
+	}
+
+	function upvoteIcon() {
+		return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 5 7 12H5z"/></svg>';
+	}
+
+	function renderProducts() {
+		if (!productsList) return;
+		const activeCategory = categoryFilter?.value || 'all';
+		const activeCountry = countryFilter?.value || 'all';
+		const activeStatus = statusFilter?.value || 'all';
+		const searchTerm = searchInput?.value.toLowerCase() || '';
+		const filtered = allProducts.filter((product) => {
+			const label = categoryLabels[product.category] || product.category;
+			const status = product.productStatus || 'live';
+			const matchesCategory = activeCategory === 'all' || product.category === activeCategory;
+			const matchesCountry = activeCountry === 'all' || product.country === activeCountry;
+			const matchesStatus = activeStatus === 'all' || status === activeStatus;
+			const searchable = `${product.name} ${product.tagline || ''} ${product.problemSolved || ''} ${product.country || ''} ${product.makerName || ''} ${label}`.toLowerCase();
+			return matchesCategory && matchesCountry && matchesStatus && searchable.includes(searchTerm) && product.status === 'active';
+		});
+
+		if (filtered.length === 0) {
+			productsList.innerHTML = '<div class="empty-state">No products match this view yet.</div>';
+			return;
+		}
+
+		productsList.innerHTML = filtered
+			.map((product) => {
+				const href = primaryUrl(product);
+				const label = categoryLabels[product.category] || product.category;
+				const status = statusLabels[product.productStatus || 'live'] || product.productStatus || 'Live';
+				const logo = product.logo
+					? `<img src="${escapeHtml(product.logo)}" alt="" />`
+					: escapeHtml(initials(product.name));
+				return `
+					<article class="product-row">
+						<a href="${escapeHtml(href)}" class="product-logo" ${href.startsWith('http') ? 'target="_blank" rel="noreferrer"' : ''}>${logo}</a>
+						<div class="product-main">
+							<div class="product-title-line">
+								<a href="${escapeHtml(href)}" ${href.startsWith('http') ? 'target="_blank" rel="noreferrer"' : ''}>${escapeHtml(product.name)}</a>
+								<span class="pitch-badge">${escapeHtml(status)}</span>
+							</div>
+							<p class="product-tagline">${escapeHtml(product.tagline || product.problemSolved || product.description)}</p>
+							<div class="product-meta">
+								${tagIcon()}
+								<span>${escapeHtml(product.country || 'Zimbabwe')}</span>
+								<span class="dot">•</span>
+								<span>${escapeHtml(label)}</span>
+								<span class="dot">•</span>
+								<span>${escapeHtml(product.makerName || 'Independent Maker')}</span>
+							</div>
+						</div>
+						<div class="icon-count">${commentIcon()}<span>${escapeHtml(product.commentCount || 0)}</span></div>
+						<button type="button" class="upvote-btn" data-product-id="${escapeHtml(product._id || '')}">
+							${upvoteIcon()}
+							<span>${escapeHtml(product.upvoteCount || 0)}</span>
+						</button>
+					</article>
+				`;
+			})
+			.join('');
+
+		document.querySelectorAll<HTMLButtonElement>('.upvote-btn').forEach((button) => {
+			button.addEventListener('click', async () => {
+				const productId = button.dataset.productId;
+				if (!productId || productId.startsWith('seed-')) {
+					const count = button.querySelector('span');
+					const voted = button.dataset.voted === 'true';
+					const nextCount = voted ? Math.max(Number(count?.textContent || 0) - 1, 0) : Number(count?.textContent || 0) + 1;
+					if (count) count.textContent = String(nextCount);
+					button.dataset.voted = String(!voted);
+					button.classList.toggle('is-voted', !voted);
+					button.setAttribute('aria-pressed', String(!voted));
+					button.classList.remove('vote-pop');
+					void button.offsetWidth;
+					button.classList.add('vote-pop');
+					return;
+				}
+				try {
+					const { convexMutation } = await import('../lib/convexAuthClient');
+					const result = await convexMutation('products:upvote', { productId });
+					const count = button.querySelector('span');
+					if (count && result?.upvoteCount !== undefined) count.textContent = String(result.upvoteCount);
+					const voted = Boolean(result?.voted);
+					button.dataset.voted = String(voted);
+					button.classList.toggle('is-voted', voted);
+					button.setAttribute('aria-pressed', String(voted));
+					button.classList.remove('vote-pop');
+					void button.offsetWidth;
+					button.classList.add('vote-pop');
+				} catch (error: any) {
+					alert(error?.message || 'Sign in to upvote products.');
+				}
+			});
+		});
+	}
+
+	async function loadProducts() {
+		const convexUrl = import.meta.env.PUBLIC_GABA_CONVEX_URL;
+		if (!convexUrl) {
+			allProducts = sampleProducts;
+			renderProducts();
+			return;
+		}
+
+		try {
+			const client = new ConvexHttpClient(convexUrl);
+			const products = await client.query('products:list' as never, {} as never);
+			allProducts = Array.isArray(products) && products.length > 0 ? products as Product[] : sampleProducts;
+		} catch {
+			allProducts = sampleProducts;
+		}
+		renderProducts();
+	}
+
+	searchInput?.addEventListener('input', renderProducts);
+	categoryFilter?.addEventListener('change', renderProducts);
+	countryFilter?.addEventListener('change', renderProducts);
+	statusFilter?.addEventListener('change', renderProducts);
+
+	loadProducts();
+</script>

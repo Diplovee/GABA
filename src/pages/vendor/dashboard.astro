@@ -7,15 +7,15 @@ import Footer from '../../components/Footer.astro';
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title="Vendor Dashboard | GABA" description="Manage your products and subscription" />
+		<BaseHead title="Maker Dashboard | GABA" description="Manage your products and maker plan" />
 	</head>
 	<body>
 		<Header />
 		<main class="dashboard">
 			<div class="dashboard-header">
 				<div>
-					<h1>Vendor Dashboard</h1>
-					<p id="welcome-message">Welcome back! Manage your products and subscription.</p>
+					<h1>Maker Dashboard</h1>
+					<p id="welcome-message">Welcome back. Manage your product submissions and maker plan.</p>
 				</div>
 				<button id="logout-button" class="btn-logout">Log out</button>
 			</div>
@@ -23,14 +23,14 @@ import Footer from '../../components/Footer.astro';
 			<div class="dashboard-grid">
 				<section class="stats-section">
 					<div class="stat-card">
-						<span class="stat-icon">📦</span>
-						<div class="stat-info">
-							<span class="stat-number" id="product-count">-</span>
-							<span class="stat-label">Products</span>
-						</div>
+							<span class="stat-icon">📦</span>
+							<div class="stat-info">
+								<span class="stat-number" id="product-count">-</span>
+								<span class="stat-label">Products</span>
+							</div>
 					</div>
 					<div class="stat-card">
-						<span class="stat-icon">💰</span>
+						<span class="stat-icon">🚀</span>
 						<div class="stat-info">
 							<span class="stat-number" id="active-products">-</span>
 							<span class="stat-label">Active</span>
@@ -47,18 +47,18 @@ import Footer from '../../components/Footer.astro';
 
 				<section class="subscription-card" id="subscription-section">
 					<div class="subscription-info">
-						<h2>Your Subscription</h2>
+						<h2>Your Maker Plan</h2>
 						<div id="subscription-status">
 							<p class="loading">Loading...</p>
 						</div>
 					</div>
-					<a href="/pricing" class="btn-secondary">Manage Subscription</a>
+					<a href="/pricing" class="btn-secondary">Manage Plan</a>
 				</section>
 
 				<section class="products-section">
 					<div class="section-header">
 						<h2>Your Products</h2>
-						<a href="/vendor/products/new" class="btn-primary">+ Add Product</a>
+						<a href="/vendor/products/new" class="btn-primary">+ Submit Product</a>
 					</div>
 					<div id="products-list" class="products-list">
 						<p class="loading">Loading products...</p>
@@ -81,7 +81,7 @@ import Footer from '../../components/Footer.astro';
 			productsList.innerHTML = `
 				<div class="empty-state">
 					<p>No products yet</p>
-					<a href="/vendor/products/new" class="btn-primary">Add Your First Product</a>
+					<a href="/vendor/products/new" class="btn-primary">Submit Your First Product</a>
 				</div>
 			`;
 			return;
@@ -95,8 +95,8 @@ import Footer from '../../components/Footer.astro';
 					<span class="status-badge ${product.status}">${product.status}</span>
 				</div>
 				<div class="product-actions">
-					<a href="/vendor/products/edit/${product._id}" class="btn-edit">Edit</a>
-					<a href="/products/${product._id}" target="_blank" class="btn-view">View</a>
+					<span class="btn-edit">Edit later</span>
+					<a href="${product.liveUrl || product.demoUrl || product.repoUrl || '/launches'}" target="_blank" class="btn-view">View</a>
 				</div>
 			</div>
 		`).join('');
@@ -109,7 +109,7 @@ import Footer from '../../components/Footer.astro';
 
 		if (!subscription) {
 			tierEl.textContent = 'Free';
-			statusEl.innerHTML = '<p>No active subscription yet. Choose a plan to start selling.</p>';
+			statusEl.innerHTML = '<p>No active maker plan yet. Choose a plan to submit more products.</p>';
 			return;
 		}
 
@@ -138,7 +138,7 @@ import Footer from '../../components/Footer.astro';
 
 			const welcomeMessage = document.getElementById('welcome-message');
 			if (welcomeMessage && user.name) {
-				welcomeMessage.textContent = `Welcome back, ${user.name}! Manage your products and subscription.`;
+				welcomeMessage.textContent = `Welcome back, ${user.name}. Manage your product submissions and maker plan.`;
 			}
 
 			const productCount = document.getElementById('product-count');
