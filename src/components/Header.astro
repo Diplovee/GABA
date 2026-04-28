@@ -13,7 +13,6 @@ import HeaderLink from './HeaderLink.astro';
 				<HeaderLink href="/">Best Products</HeaderLink>
 				<HeaderLink href="/news">Stories</HeaderLink>
 				<HeaderLink href="/community">Community</HeaderLink>
-				<HeaderLink href="/advertise">Advertise</HeaderLink>
 			</div>
 			<div class="nav-actions">
 				<form class="terminal-search" action="/">
@@ -23,9 +22,7 @@ import HeaderLink from './HeaderLink.astro';
 				</form>
 				<div class="profile-menu" id="profile-menu">
 					<a href="/vendor/dashboard" class="profile-link" aria-label="Open profile menu" aria-haspopup="true" aria-expanded="false">
-						<svg viewBox="0 0 24 24" aria-hidden="true">
-							<path d="M12 12c2.761 0 5-2.462 5-5.5S14.761 1 12 1 7 3.462 7 6.5 9.239 12 12 12Zm0 2c-4.418 0-8 2.91-8 6.5V23h16v-2.5c0-3.59-3.582-6.5-8-6.5Z" />
-						</svg>
+						<span class="profile-avatar" aria-hidden="true">T</span>
 					</a>
 					<div class="profile-dropdown" aria-label="Profile options">
 						<a href="/vendor/dashboard?tab=profile">Profile</a>
@@ -192,23 +189,32 @@ import HeaderLink from './HeaderLink.astro';
 	}
 	.profile-link {
 		display: inline-grid;
-		width: 36px;
-		height: 36px;
+		width: 44px;
+		height: 44px;
 		place-items: center;
-		border: 1px solid var(--ui-border);
-		border-radius: 999px;
-		background: #f8fafc;
+		border: 0;
+		border-radius: 10px;
+		background: transparent;
+		overflow: hidden;
 		color: #475569;
 	}
-	.profile-link svg {
-		width: 18px;
-		height: 18px;
-		fill: currentColor;
+	.profile-avatar {
+		display: grid;
+		width: 100%;
+		height: 100%;
+		place-items: center;
+		background:
+			radial-gradient(circle at 36% 36%, rgba(139, 92, 246, 0.55), transparent 35%),
+			linear-gradient(145deg, #4f46e5 0%, #6366f1 45%, #a78bfa 100%);
+		color: white;
+		font-size: 1.45rem;
+		font-weight: 900;
+		letter-spacing: 0;
+		text-transform: uppercase;
+		box-shadow: inset 0 -8px 20px rgba(79, 70, 229, 0.18);
 	}
 	.profile-link:hover {
-		border-color: #cbd5e1;
-		background: white;
-		color: #0f172a;
+		filter: saturate(1.05) brightness(1.02);
 	}
 	.profile-dropdown {
 		position: absolute;
