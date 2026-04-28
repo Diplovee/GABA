@@ -339,7 +339,7 @@ export const createComment = mutation({
     if (cleanBody.length < 2) {
       throw new Error('Comment is too short');
     }
-    if (cleanBody.length > 1000) {
+    if (cleanBody.length > 1000000) {
       throw new Error('Comment is too long');
     }
 

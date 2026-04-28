@@ -141,7 +141,15 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 							<button type="button" data-format="mention" title="Mention">@</button>
 							<button type="button" data-format="image" title="Image">Image</button>
 						</div>
-						<textarea id="comment-body" name="body" maxlength="1000" placeholder="Ask a sharp question, share field context, or point out what would make this product stronger."></textarea>
+						<input id="comment-image-input" type="file" accept="image/*" hidden />
+						<div
+							id="comment-body"
+							class="comment-editor"
+							contenteditable="true"
+							role="textbox"
+							aria-multiline="true"
+							data-placeholder="Ask a sharp question, share field context, or point out what would make this product stronger."
+						></div>
 						<div class="composer-actions">
 							<p id="comment-status" class="discussion-status" aria-live="polite">Sign in to post. Everyone can read the thread.</p>
 							<button type="submit" class="composer-submit">Post comment</button>
@@ -151,6 +159,20 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 
 				<div id="comment-thread" class="comment-thread" aria-live="polite">
 					<div class="comment-empty">Loading discussion...</div>
+				</div>
+
+				<div id="comment-link-modal" class="comment-modal" hidden>
+					<div class="comment-modal-panel" role="dialog" aria-modal="true" aria-labelledby="comment-link-title">
+						<form id="comment-link-form">
+							<h3 id="comment-link-title">Add link</h3>
+							<label for="comment-link-url">URL</label>
+							<input id="comment-link-url" type="url" placeholder="https://example.com" autocomplete="off" />
+							<div class="comment-modal-actions">
+								<button type="button" id="comment-link-cancel">Cancel</button>
+								<button type="submit">Add link</button>
+							</div>
+						</form>
+					</div>
 				</div>
 			</section>
 
@@ -475,7 +497,7 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		margin: 0 0.2rem;
 		background: var(--ui-border);
 	}
-	.composer-body textarea {
+	.comment-editor {
 		display: block;
 		width: 100%;
 		min-height: 112px;
@@ -488,15 +510,53 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		font: inherit;
 		font-size: 0.95rem;
 		line-height: 1.6;
-		resize: vertical;
+		overflow-wrap: anywhere;
 	}
-	.composer-body textarea:focus {
+	.comment-editor:focus {
 		border-color: var(--accent);
 		background: white;
 		outline: 3px solid rgba(16, 185, 129, 0.14);
 	}
-	.composer-body textarea::placeholder {
+	.comment-editor:empty::before {
+		content: attr(data-placeholder);
 		color: #94a3b8;
+		pointer-events: none;
+	}
+	.comment-editor p {
+		margin: 0.45rem 0 0;
+	}
+	.comment-editor p:first-child {
+		margin-top: 0;
+	}
+	.comment-editor ul,
+	.comment-editor ol {
+		margin: 0.5rem 0 0;
+		padding-left: 1.25rem;
+	}
+	.comment-editor blockquote {
+		margin: 0.6rem 0 0;
+		padding: 0.5rem 0.75rem;
+		border-left: 3px solid var(--accent);
+		background: #eefdf6;
+		color: #475569;
+	}
+	.comment-editor code {
+		padding: 0.12rem 0.32rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: white;
+		color: #0f172a;
+		font-size: 0.86em;
+	}
+	.comment-editor img {
+		display: block;
+		max-width: min(100%, 520px);
+		max-height: 320px;
+		margin-top: 0.65rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		object-fit: contain;
+		background: white;
 	}
 	.composer-actions {
 		display: flex;
@@ -645,6 +705,83 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		font-size: 0.92rem;
 		line-height: 1.6;
 	}
+	.comment-modal[hidden] {
+		display: none;
+	}
+	.comment-modal {
+		position: fixed;
+		inset: 0;
+		z-index: 80;
+		display: grid;
+		place-items: center;
+		padding: 1rem;
+		background: rgba(15, 23, 42, 0.38);
+	}
+	.comment-modal-panel {
+		width: min(100%, 420px);
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		background: white;
+		box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+	}
+	.comment-modal-panel form {
+		padding: 1.1rem;
+	}
+	.comment-modal-panel h3 {
+		margin: 0 0 0.9rem;
+		color: #0f172a;
+		font-size: 1.05rem;
+		font-weight: 900;
+	}
+	.comment-modal-panel label {
+		display: block;
+		margin-bottom: 0.45rem;
+		color: #334155;
+		font-size: 0.78rem;
+		font-weight: 900;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.comment-modal-panel input {
+		width: 100%;
+		box-sizing: border-box;
+		min-height: 42px;
+		padding: 0 0.8rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: #f8fafc;
+		color: #0f172a;
+		font: inherit;
+	}
+	.comment-modal-panel input:focus {
+		border-color: var(--accent);
+		background: white;
+		outline: 3px solid rgba(16, 185, 129, 0.14);
+	}
+	.comment-modal-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.65rem;
+		margin-top: 1rem;
+	}
+	.comment-modal-actions button {
+		min-height: 38px;
+		padding: 0 0.95rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: white;
+		color: #334155;
+		font: inherit;
+		font-size: 0.78rem;
+		font-weight: 900;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.comment-modal-actions button[type='submit'] {
+		border-color: var(--accent);
+		background: var(--accent);
+		color: white;
+	}
 	.detail-main,
 	.detail-side {
 		border: 1px solid var(--ui-border);
@@ -776,12 +913,18 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 
 	const discussion = document.querySelector<HTMLElement>('.discussion-band');
 	const commentForm = document.getElementById('comment-form') as HTMLFormElement | null;
-	const commentBody = document.getElementById('comment-body') as HTMLTextAreaElement | null;
+	const commentBody = document.getElementById('comment-body') as HTMLElement | null;
+	const commentImageInput = document.getElementById('comment-image-input') as HTMLInputElement | null;
+	const commentLinkModal = document.getElementById('comment-link-modal') as HTMLElement | null;
+	const commentLinkForm = document.getElementById('comment-link-form') as HTMLFormElement | null;
+	const commentLinkUrl = document.getElementById('comment-link-url') as HTMLInputElement | null;
+	const commentLinkCancel = document.getElementById('comment-link-cancel') as HTMLButtonElement | null;
 	const commentThread = document.getElementById('comment-thread');
 	const commentCount = document.getElementById('comment-count');
 	const commentStatus = document.getElementById('comment-status');
 	const projectSlug = discussion?.dataset.projectSlug;
 	const convexUrl = import.meta.env.PUBLIC_GABA_CONVEX_URL;
+	let savedLinkRange: Range | null = null;
 
 	function escapeHtml(value: unknown) {
 		return String(value ?? '')
@@ -792,13 +935,122 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 			.replaceAll("'", '&#039;');
 	}
 
-	function isSafeUrl(value: string) {
+	function isSafeUrl(value: string, allowDataImage = false) {
+		if (allowDataImage && /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value)) {
+			return true;
+		}
 		try {
 			const url = new URL(value);
 			return url.protocol === 'https:' || url.protocol === 'http:';
 		} catch {
 			return false;
 		}
+	}
+
+	function sanitizeCommentHtml(value: string) {
+		const template = document.createElement('template');
+		template.innerHTML = value;
+		const allowedTags = new Set(['A', 'B', 'BLOCKQUOTE', 'BR', 'CODE', 'DIV', 'EM', 'I', 'IMG', 'LI', 'OL', 'P', 'SPAN', 'STRONG', 'UL']);
+		const unwrap = (node: Element) => {
+			const parent = node.parentNode;
+			if (!parent) return;
+			while (node.firstChild) parent.insertBefore(node.firstChild, node);
+			parent.removeChild(node);
+		};
+
+		template.content.querySelectorAll('*').forEach((element) => {
+			if (!allowedTags.has(element.tagName)) {
+				unwrap(element);
+				return;
+			}
+
+			const href = element.tagName === 'A' ? element.getAttribute('href') || '' : '';
+			const src = element.tagName === 'IMG' ? element.getAttribute('src') || '' : '';
+			const alt = element.tagName === 'IMG' ? element.getAttribute('alt') || '' : '';
+			Array.from(element.attributes).forEach((attribute) => element.removeAttribute(attribute.name));
+
+			if (element.tagName === 'A') {
+				if (isSafeUrl(href)) {
+					element.setAttribute('href', href);
+					element.setAttribute('target', '_blank');
+					element.setAttribute('rel', 'noreferrer');
+				} else {
+					unwrap(element);
+				}
+			}
+
+			if (element.tagName === 'IMG') {
+				if (isSafeUrl(src, true)) {
+					element.setAttribute('src', src);
+					element.setAttribute('alt', alt || 'Comment image');
+					element.setAttribute('loading', 'lazy');
+				} else {
+					element.remove();
+				}
+			}
+
+			if (element.tagName === 'SPAN' && /^@\S+/.test(element.textContent || '')) {
+				element.setAttribute('class', 'comment-mention');
+			}
+		});
+
+		return template.innerHTML.trim();
+	}
+
+	function plainTextFromHtml(value: string) {
+		const template = document.createElement('template');
+		template.innerHTML = value;
+		return (template.content.textContent || '').trim();
+	}
+
+	function insertHtmlAtCursor(html: string) {
+		if (!commentBody) return;
+		commentBody.focus();
+		document.execCommand('insertHTML', false, html);
+	}
+
+	function saveEditorSelection() {
+		const selection = window.getSelection();
+		if (!selection || selection.rangeCount === 0 || !commentBody) return;
+		const range = selection.getRangeAt(0);
+		if (commentBody.contains(range.commonAncestorContainer)) {
+			savedLinkRange = range.cloneRange();
+		}
+	}
+
+	function restoreEditorSelection() {
+		if (!savedLinkRange) return;
+		const selection = window.getSelection();
+		selection?.removeAllRanges();
+		selection?.addRange(savedLinkRange);
+	}
+
+	function openLinkModal() {
+		saveEditorSelection();
+		if (!commentLinkModal || !commentLinkUrl) return;
+		commentLinkUrl.value = '';
+		commentLinkModal.hidden = false;
+		window.setTimeout(() => commentLinkUrl.focus(), 0);
+	}
+
+	function closeLinkModal() {
+		if (!commentLinkModal) return;
+		commentLinkModal.hidden = true;
+		commentBody?.focus();
+	}
+
+	function applyLink(href: string) {
+		restoreEditorSelection();
+		const selection = window.getSelection()?.toString();
+		if (selection) {
+			document.execCommand('createLink', false, href);
+			const anchor = commentBody?.querySelector(`a[href="${CSS.escape(href)}"]`);
+			anchor?.setAttribute('target', '_blank');
+			anchor?.setAttribute('rel', 'noreferrer');
+		} else {
+			insertHtmlAtCursor(`<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(href)}</a>`);
+		}
+		savedLinkRange = null;
 	}
 
 	function renderInlineMarkdown(value: string) {
@@ -835,7 +1087,7 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 			}
 
 			const imageMatch = trimmed.match(/^!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)$/);
-			if (imageMatch && isSafeUrl(imageMatch[2])) {
+			if (imageMatch && isSafeUrl(imageMatch[2], true)) {
 				closeList();
 				html.push(`<img src="${escapeHtml(imageMatch[2])}" alt="${escapeHtml(imageMatch[1] || 'Comment image')}" loading="lazy" />`);
 				continue;
@@ -878,36 +1130,30 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		return html.join('');
 	}
 
+	function renderStoredCommentBody(value: string) {
+		if (/<[a-z][\s\S]*>/i.test(value)) {
+			return sanitizeCommentHtml(value);
+		}
+		return renderCommentBody(value);
+	}
+
 	function insertFormatting(format: string) {
 		if (!commentBody) return;
-		const start = commentBody.selectionStart;
-		const end = commentBody.selectionEnd;
-		const selected = commentBody.value.slice(start, end);
-		const fallback: Record<string, string> = {
-			bold: 'strong point',
-			italic: 'emphasis',
-			link: 'link text',
-			code: 'code',
-			quote: 'quote',
-			mention: 'maker',
-			image: 'Image description',
-		};
-		const templates: Record<string, string> = {
-			bold: `**${selected || fallback.bold}**`,
-			italic: `*${selected || fallback.italic}*`,
-			ordered: selected ? selected.split(/\r?\n/).map((line, index) => `${index + 1}. ${line}`).join('\n') : '1. First point',
-			unordered: selected ? selected.split(/\r?\n/).map((line) => `- ${line}`).join('\n') : '- First point',
-			link: `[${selected || fallback.link}](https://example.com)`,
-			code: `\`${selected || fallback.code}\``,
-			quote: selected ? selected.split(/\r?\n/).map((line) => `> ${line}`).join('\n') : `> ${fallback.quote}`,
-			mention: `@${selected || fallback.mention}`,
-			image: `![${selected || fallback.image}](https://example.com/image.jpg)`,
-		};
-		const insertion = templates[format];
-		if (!insertion) return;
-
-		commentBody.setRangeText(insertion, start, end, 'select');
 		commentBody.focus();
+
+		if (format === 'bold') document.execCommand('bold');
+		if (format === 'italic') document.execCommand('italic');
+		if (format === 'ordered') document.execCommand('insertOrderedList');
+		if (format === 'unordered') document.execCommand('insertUnorderedList');
+		if (format === 'quote') document.execCommand('formatBlock', false, 'blockquote');
+		if (format === 'code') insertHtmlAtCursor('<code>code</code>');
+		if (format === 'mention') insertHtmlAtCursor('<span class="comment-mention">@maker</span>&nbsp;');
+		if (format === 'link') {
+			openLinkModal();
+		}
+		if (format === 'image') {
+			commentImageInput?.click();
+		}
 	}
 
 	function initials(name: string) {
@@ -964,7 +1210,7 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 							</div>
 							<time class="comment-time" datetime="${new Date(comment.createdAt).toISOString()}">${escapeHtml(formatCommentTime(comment.createdAt))}</time>
 						</div>
-						<div class="comment-body">${renderCommentBody(comment.body)}</div>
+						<div class="comment-body">${renderStoredCommentBody(comment.body)}</div>
 					</article>
 				`;
 			})
@@ -993,12 +1239,67 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		button.addEventListener('click', () => insertFormatting(button.dataset.format || ''));
 	});
 
+	commentLinkForm?.addEventListener('submit', (event) => {
+		event.preventDefault();
+		const href = commentLinkUrl?.value.trim() || '';
+		if (!isSafeUrl(href)) {
+			if (commentStatus) commentStatus.textContent = 'Use a valid http or https link.';
+			return;
+		}
+		applyLink(href);
+		closeLinkModal();
+	});
+
+	commentLinkCancel?.addEventListener('click', () => {
+		savedLinkRange = null;
+		closeLinkModal();
+	});
+
+	commentLinkModal?.addEventListener('click', (event) => {
+		if (event.target === commentLinkModal) {
+			savedLinkRange = null;
+			closeLinkModal();
+		}
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && commentLinkModal && !commentLinkModal.hidden) {
+			savedLinkRange = null;
+			closeLinkModal();
+		}
+	});
+
+	commentImageInput?.addEventListener('change', () => {
+		const file = commentImageInput.files?.[0];
+		commentImageInput.value = '';
+		if (!file) return;
+		if (!file.type.startsWith('image/')) {
+			if (commentStatus) commentStatus.textContent = 'Choose an image file.';
+			return;
+		}
+		if (file.size > 650_000) {
+			if (commentStatus) commentStatus.textContent = 'Image is too large. Use an image under 650 KB.';
+			return;
+		}
+
+		const reader = new FileReader();
+		reader.onload = () => {
+			const src = String(reader.result || '');
+			if (isSafeUrl(src, true)) {
+				insertHtmlAtCursor(`<img src="${escapeHtml(src)}" alt="${escapeHtml(file.name)}" loading="lazy" />`);
+			}
+		};
+		reader.readAsDataURL(file);
+	});
+
 	commentForm?.addEventListener('submit', async (event) => {
 		event.preventDefault();
-		const body = commentBody?.value.trim() || '';
+		const body = sanitizeCommentHtml(commentBody?.innerHTML || '');
+		const textBody = plainTextFromHtml(body);
+		const hasImage = /<img\b/i.test(body);
 		const submitButton = commentForm.querySelector<HTMLButtonElement>('.composer-submit');
 
-		if (!projectSlug || body.length < 2) {
+		if (!projectSlug || (!hasImage && textBody.length < 2)) {
 			if (commentStatus) commentStatus.textContent = 'Write at least two characters before posting.';
 			return;
 		}
@@ -1008,7 +1309,7 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 			if (commentStatus) commentStatus.textContent = 'Posting comment...';
 			const { convexMutation } = await import('../../lib/convexAuthClient');
 			await convexMutation('products:createComment', { targetSlug: projectSlug, body });
-			if (commentBody) commentBody.value = '';
+			if (commentBody) commentBody.innerHTML = '';
 			if (commentStatus) commentStatus.textContent = 'Comment posted.';
 			await loadComments();
 		} catch (error: any) {
