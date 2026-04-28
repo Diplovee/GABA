@@ -591,44 +591,51 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		cursor: not-allowed;
 		opacity: 0.55;
 	}
-	.comment-thread {
+	:global(.comment-thread) {
 		display: grid;
 		gap: 0.75rem;
 		margin-top: 0.95rem;
 	}
-	.comment {
+	:global(.comment) {
 		padding: 1rem 1.1rem;
 		border: 1px solid var(--ui-border);
-		border-radius: 6px;
+		border-radius: 10px;
 		background: white;
 		box-shadow: 0 8px 20px rgba(15, 23, 42, 0.035);
 	}
-	.comment-head {
+	:global(.comment.is-reply) {
+		margin-top: 0.7rem;
+		margin-left: 1.4rem;
+		padding-left: 1rem;
+		border-left: 3px solid var(--accent);
+		background: linear-gradient(180deg, #fcfffe 0%, #f8fbff 100%);
+	}
+	:global(.comment-head) {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.75rem;
 	}
-	.comment-author {
+	:global(.comment-author) {
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
 		min-width: 0;
 	}
-	.comment-head strong {
+	:global(.comment-head strong) {
 		display: block;
 		color: #0f172a;
 		font-size: 0.98rem;
 		font-weight: 900;
 	}
-	.comment-head span {
+	:global(.comment-head span) {
 		display: block;
 		margin-top: 0.15rem;
 		color: #94a3b8;
 		font-size: 0.76rem;
 		font-weight: 750;
 	}
-	.comment-time {
+	:global(.comment-time) {
 		flex: 0 0 auto;
 		color: #94a3b8;
 		font-size: 0.74rem;
@@ -636,32 +643,32 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
 	}
-	.comment p {
+	:global(.comment p) {
 		margin: 0.85rem 0 0;
 		color: #334155;
 		line-height: 1.7;
 	}
-	.comment-body {
+	:global(.comment-body) {
 		margin-top: 0.9rem;
 		color: #334155;
 		line-height: 1.7;
 	}
-	.comment-body p {
+	:global(.comment-body p) {
 		margin: 0.65rem 0 0;
 	}
-	.comment-body p:first-child {
+	:global(.comment-body p:first-child) {
 		margin-top: 0;
 	}
-	.comment-body a {
+	:global(.comment-body a) {
 		color: var(--accent);
 		font-weight: 800;
 		text-decoration: none;
 	}
-	.comment-body a:hover {
+	:global(.comment-body a:hover) {
 		color: var(--accent-dark);
 		text-decoration: underline;
 	}
-	.comment-body code {
+	:global(.comment-body code) {
 		padding: 0.15rem 0.35rem;
 		border: 1px solid var(--ui-border);
 		border-radius: 4px;
@@ -669,19 +676,19 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		color: #0f172a;
 		font-size: 0.86em;
 	}
-	.comment-body blockquote {
+	:global(.comment-body blockquote) {
 		margin: 0.75rem 0 0;
 		padding: 0.55rem 0.75rem;
 		border-left: 3px solid var(--accent);
 		background: #f8fafc;
 		color: #475569;
 	}
-	.comment-body ul,
-	.comment-body ol {
+	:global(.comment-body ul),
+	:global(.comment-body ol) {
 		margin: 0.65rem 0 0;
 		padding-left: 1.25rem;
 	}
-	.comment-body img {
+	:global(.comment-body img) {
 		display: block;
 		max-width: min(100%, 620px);
 		max-height: 420px;
@@ -691,9 +698,75 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		object-fit: contain;
 		background: #f8fafc;
 	}
-	.comment-mention {
+	:global(.comment-mention) {
 		color: #0f172a;
 		font-weight: 900;
+	}
+	:global(.comment-actions) {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-top: 0.9rem;
+	}
+	:global(.reply-composer) {
+		margin-top: 0.9rem;
+		padding: 0.9rem;
+		border: 1px solid #cbd5e1;
+		border-radius: 8px;
+		background: #f8fafc;
+	}
+	:global(.reply-composer-label) {
+		margin: 0 0 0.45rem;
+		color: #334155;
+		font-size: 0.78rem;
+		font-weight: 800;
+	}
+	:global(.reply-composer textarea) {
+		width: 100%;
+		min-height: 92px;
+		box-sizing: border-box;
+		padding: 0.8rem 0.9rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		background: white;
+		color: #0f172a;
+		font: inherit;
+		line-height: 1.6;
+		resize: vertical;
+	}
+	:global(.reply-composer textarea:focus) {
+		outline: 3px solid rgba(16, 185, 129, 0.14);
+		border-color: var(--accent);
+	}
+	:global(.reply-composer-actions) {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.65rem;
+		margin-top: 0.7rem;
+	}
+	:global(.reply-cancel) {
+		min-height: 36px;
+		padding: 0 0.9rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		background: white;
+		color: #475569;
+		font: inherit;
+		font-size: 0.78rem;
+		font-weight: 800;
+	}
+	:global(.comment-action) {
+		border: 0;
+		background: transparent;
+		padding: 0;
+		color: #64748b;
+		font-size: 0.82rem;
+		font-weight: 800;
+		cursor: pointer;
+	}
+	:global(.comment-action:hover),
+	:global(.comment-action.is-voted) {
+		color: var(--accent);
 	}
 	.comment-empty {
 		padding: 1.25rem;
@@ -906,8 +979,12 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		_id: string;
 		body: string;
 		createdAt: number;
+		parentCommentId?: string;
+		upvoteCount?: number;
+		voted?: boolean;
 		authorName?: string;
 		authorImage?: string;
+		replyToAuthorName?: string;
 	};
 
 	const discussion = document.querySelector<HTMLElement>('.discussion-band');
@@ -924,6 +1001,8 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 	const projectSlug = discussion?.dataset.projectSlug;
 	const convexUrl = import.meta.env.PUBLIC_GABA_CONVEX_URL;
 	let savedLinkRange: Range | null = null;
+	let replyingTo: ProductComment | null = null;
+	let currentComments: ProductComment[] = [];
 
 	function escapeHtml(value: unknown) {
 		return String(value ?? '')
@@ -1183,6 +1262,7 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 	}
 
 	function renderComments(comments: ProductComment[]) {
+		currentComments = comments;
 		updateCount(comments.length);
 		if (!commentThread) return;
 
@@ -1191,29 +1271,58 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 			return;
 		}
 
-		commentThread.innerHTML = comments
+		const byParent = new Map<string, ProductComment[]>();
+		for (const comment of comments) {
+			const key = comment.parentCommentId || 'root';
+			const bucket = byParent.get(key) || [];
+			bucket.push(comment);
+			byParent.set(key, bucket);
+		}
+
+		const renderBranch = (parentId = 'root') => (byParent.get(parentId) || [])
 			.map((comment) => {
 				const authorName = comment.authorName || 'GABA member';
 				const avatar = comment.authorImage
 					? `<img src="${escapeHtml(comment.authorImage)}" alt="" />`
 					: escapeHtml(initials(authorName));
+				const replyBadge = comment.replyToAuthorName ? `Reply to ${escapeHtml(comment.replyToAuthorName)}` : 'Product feedback';
+				const replyBox = replyingTo?._id === comment._id
+					? `
+						<form class="reply-composer" data-reply-form="${escapeHtml(comment._id)}">
+							<p class="reply-composer-label">Replying to <strong>${escapeHtml(authorName)}</strong></p>
+							<textarea name="replyBody" placeholder="Write your reply here..."></textarea>
+							<div class="reply-composer-actions">
+								<button type="button" class="reply-cancel" data-action="cancel-reply">Cancel</button>
+								<button type="submit" class="composer-submit">Post reply</button>
+							</div>
+						</form>
+					`
+					: '';
 				return `
-					<article class="comment">
+					<article class="comment${comment.parentCommentId ? ' is-reply' : ''}" data-comment-id="${escapeHtml(comment._id)}">
 						<div class="comment-head">
 							<div class="comment-author">
 								<div class="comment-avatar">${avatar}</div>
 								<div>
 									<strong>${escapeHtml(authorName)}</strong>
-									<span>Product feedback</span>
+									<span>${replyBadge}</span>
 								</div>
 							</div>
 							<time class="comment-time" datetime="${new Date(comment.createdAt).toISOString()}">${escapeHtml(formatCommentTime(comment.createdAt))}</time>
 						</div>
 						<div class="comment-body">${renderStoredCommentBody(comment.body)}</div>
+						<div class="comment-actions">
+							<button type="button" class="comment-action${comment.voted ? ' is-voted' : ''}" data-action="upvote-comment" data-comment-id="${escapeHtml(comment._id)}">▲ ${escapeHtml(comment.upvoteCount || 0)}</button>
+							<button type="button" class="comment-action" data-action="reply-comment" data-comment-id="${escapeHtml(comment._id)}">Reply</button>
+						</div>
+						${replyBox}
+						${renderBranch(comment._id)}
 					</article>
 				`;
 			})
 			.join('');
+
+		commentThread.innerHTML = renderBranch();
 	}
 
 	async function loadComments() {
@@ -1289,6 +1398,69 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 			}
 		};
 		reader.readAsDataURL(file);
+	});
+
+	commentThread?.addEventListener('click', async (event) => {
+		const target = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');
+		if (!target) return;
+		const action = target.dataset.action;
+		const commentId = target.dataset.commentId;
+
+
+		if (action === 'cancel-reply') {
+			replyingTo = null;
+			renderComments(currentComments);
+			return;
+		}
+
+		if (action === 'reply-comment' && commentId) {
+			const article = target.closest<HTMLElement>('[data-comment-id]');
+			const authorName = article?.querySelector('strong')?.textContent || 'GABA member';
+			replyingTo = { _id: commentId, body: '', createdAt: Date.now(), authorName };
+			renderComments(currentComments);
+			window.setTimeout(() => {
+				const textarea = commentThread?.querySelector<HTMLTextAreaElement>(`form[data-reply-form="${CSS.escape(commentId)}"] textarea`);
+				textarea?.focus();
+			}, 0);
+			return;
+		}
+
+		if (action === 'upvote-comment' && commentId) {
+			try {
+				const { convexMutation } = await import('../../lib/convexAuthClient');
+				await convexMutation('products:upvoteComment', { commentId });
+				await loadComments();
+			} catch (error: any) {
+				if (commentStatus) commentStatus.textContent = error?.message || 'Sign in to upvote comments.';
+			}
+		}
+	});
+
+	commentThread?.addEventListener('submit', async (event) => {
+		const form = event.target as HTMLFormElement;
+		if (!form.matches('.reply-composer')) return;
+		event.preventDefault();
+		const textarea = form.querySelector<HTMLTextAreaElement>('textarea[name="replyBody"]');
+		const body = sanitizeCommentHtml((textarea?.value || '').replaceAll('\n', '<br>'));
+		const textBody = plainTextFromHtml(body);
+		const submitButton = form.querySelector<HTMLButtonElement>('.composer-submit');
+		if (!projectSlug || !replyingTo || textBody.length < 2) {
+			if (commentStatus) commentStatus.textContent = 'Write at least two characters before posting.';
+			return;
+		}
+		try {
+			if (submitButton) submitButton.disabled = true;
+			if (commentStatus) commentStatus.textContent = 'Posting reply...';
+			const { convexMutation } = await import('../../lib/convexAuthClient');
+			await convexMutation('products:createComment', { targetSlug: projectSlug, body, parentCommentId: replyingTo._id });
+			replyingTo = null;
+			if (commentStatus) commentStatus.textContent = 'Reply posted.';
+			await loadComments();
+		} catch (error: any) {
+			if (commentStatus) commentStatus.textContent = error?.message || 'Sign in to post a reply.';
+		} finally {
+			if (submitButton) submitButton.disabled = false;
+		}
 	});
 
 	commentForm?.addEventListener('submit', async (event) => {

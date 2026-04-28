@@ -90,13 +90,24 @@ export default defineSchema({
     productId: v.optional(v.id('products')),
     targetSlug: v.optional(v.string()),
     userId: v.id('users'),
+    parentCommentId: v.optional(v.id('productComments')),
     body: v.string(),
+    upvoteCount: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index('byProduct', ['productId', 'createdAt'])
     .index('byTargetSlug', ['targetSlug', 'createdAt'])
-    .index('byUser', ['userId']),
+    .index('byUser', ['userId'])
+    .index('byParentComment', ['parentCommentId', 'createdAt']),
+
+  productCommentVotes: defineTable({
+    commentId: v.id('productComments'),
+    userId: v.id('users'),
+    createdAt: v.number(),
+  })
+    .index('byComment', ['commentId'])
+    .index('byUserComment', ['userId', 'commentId']),
 
   subscriptions: defineTable({
     userId: v.id('users'),

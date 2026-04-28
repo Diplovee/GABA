@@ -298,6 +298,7 @@ export const listComments = query({
       throw new Error('Comment target is required');
     }
 
+    const userId = await getAuthUserId(ctx);
     const comments = productId
       ? await ctx.db.query('productComments')
         .withIndex('byProduct', (q) => q.eq('productId', productId))
@@ -307,11 +308,22 @@ export const listComments = query({
         .collect();
 
     return await Promise.all(comments.map(async (comment) => {
-      const author = await ctx.db.get(comment.userId);
+      const [author, parentComment, existingVote] = await Promise.all([
+        ctx.db.get(comment.userId),
+        comment.parentCommentId ? ctx.db.get(comment.parentCommentId) : Promise.resolve(null),
+        userId
+          ? ctx.db.query('productCommentVotes')
+            .withIndex('byUserComment', (q) => q.eq('userId', userId).eq('commentId', comment._id))
+            .unique()
+          : Promise.resolve(null),
+      ]);
+      const parentAuthor = parentComment ? await ctx.db.get(parentComment.userId) : null;
       return {
         ...comment,
         authorName: author?.name || author?.businessName || 'GABA member',
         authorImage: author?.image,
+        replyToAuthorName: parentAuthor?.name || parentAuthor?.businessName,
+        voted: Boolean(existingVote),
       };
     }));
   },
@@ -321,9 +333,10 @@ export const createComment = mutation({
   args: {
     productId: v.optional(v.id('products')),
     targetSlug: v.optional(v.string()),
+    parentCommentId: v.optional(v.id('productComments')),
     body: v.string(),
   },
-  handler: async (ctx, { productId, targetSlug, body }) => {
+  handler: async (ctx, { productId, targetSlug, parentCommentId, body }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       throw new Error('Sign in to comment on products');
@@ -338,6 +351,17 @@ export const createComment = mutation({
       throw new Error('Product not found');
     }
 
+    const parentComment = parentCommentId ? await ctx.db.get(parentCommentId) : null;
+    if (parentCommentId && !parentComment) {
+      throw new Error('Reply target not found');
+    }
+    if (parentComment && parentComment.productId !== productId) {
+      throw new Error('Reply must stay on the same product');
+    }
+    if (parentComment && parentComment.targetSlug !== targetSlug) {
+      throw new Error('Reply must stay in the same discussion');
+    }
+
     const cleanBody = body.trim();
     if (cleanBody.length < 2) {
       throw new Error('Comment is too short');
@@ -350,8 +374,10 @@ export const createComment = mutation({
     const commentId = await ctx.db.insert('productComments', {
       productId,
       targetSlug,
+      parentCommentId,
       userId,
       body: cleanBody,
+      upvoteCount: 0,
       createdAt: now,
       updatedAt: now,
     });
@@ -365,6 +391,37 @@ export const createComment = mutation({
     }
 
     return { commentId, commentCount };
+  },
+});
+
+export const upvoteComment = mutation({
+  args: { commentId: v.id('productComments') },
+  handler: async (ctx, { commentId }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Sign in to upvote comments');
+    }
+
+    const comment = await ctx.db.get(commentId);
+    if (!comment) {
+      throw new Error('Comment not found');
+    }
+
+    const existingVote = await ctx.db.query('productCommentVotes')
+      .withIndex('byUserComment', (q) => q.eq('userId', userId).eq('commentId', commentId))
+      .unique();
+
+    if (existingVote) {
+      await ctx.db.delete(existingVote._id);
+      const upvoteCount = Math.max((comment.upvoteCount || 0) - 1, 0);
+      await ctx.db.patch(commentId, { upvoteCount, updatedAt: Date.now() });
+      return { upvoteCount, voted: false };
+    }
+
+    await ctx.db.insert('productCommentVotes', { commentId, userId, createdAt: Date.now() });
+    const upvoteCount = (comment.upvoteCount || 0) + 1;
+    await ctx.db.patch(commentId, { upvoteCount, updatedAt: Date.now() });
+    return { upvoteCount, voted: true };
   },
 });
 
