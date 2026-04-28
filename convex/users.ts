@@ -23,6 +23,7 @@ export const createUser = mutation({
       name: args.name,
       phone: args.phone,
       businessName: args.businessName,
+      accountStatus: 'active',
       createdAt: Date.now(),
     });
   },
@@ -69,5 +70,84 @@ export const updateUser = mutation({
   handler: async (ctx, args) => {
     const { userId, ...updates } = args;
     await ctx.db.patch(userId, updates);
+  },
+});
+
+export const updateCurrentProfile = mutation({
+  args: {
+    name: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    businessName: v.optional(v.string()),
+    headline: v.optional(v.string()),
+    bio: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
+    const sanitize = (value?: string) => {
+      const trimmed = value?.trim();
+      return trimmed ? trimmed : undefined;
+    };
+
+    await ctx.db.patch(userId, {
+      name: sanitize(args.name),
+      phone: sanitize(args.phone),
+      businessName: sanitize(args.businessName),
+      headline: sanitize(args.headline),
+      bio: sanitize(args.bio),
+    });
+
+    return await ctx.db.get(userId);
+  },
+});
+
+export const requestVerification = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
+    await ctx.db.patch(userId, {
+      verificationRequestedAt: Date.now(),
+    });
+
+    return await ctx.db.get(userId);
+  },
+});
+
+export const deactivateCurrentAccount = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
+    await ctx.db.patch(userId, {
+      accountStatus: 'deactivated',
+    });
+
+    return { success: true };
+  },
+});
+
+export const requestAccountDeletion = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
+    await ctx.db.patch(userId, {
+      accountStatus: 'delete_requested',
+    });
+
+    return { success: true };
   },
 });

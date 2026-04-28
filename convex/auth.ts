@@ -19,6 +19,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
           name: name || undefined,
           businessName: businessName || undefined,
           phone: phone || undefined,
+          accountStatus: 'active' as const,
           createdAt: Date.now(),
         };
       },

@@ -7,135 +7,510 @@ import Footer from '../../components/Footer.astro';
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title="Maker Dashboard | GABA" description="Manage your products and maker plan" />
+		<BaseHead title="Profile Dashboard | GABA" description="Manage your profile, launches, settings, and account actions" />
 	</head>
 	<body>
 		<Header />
 		<main class="dashboard">
-			<div class="dashboard-header">
-				<div>
-					<h1>Maker Dashboard</h1>
-					<p id="welcome-message">Welcome back. Manage your product submissions and maker plan.</p>
-				</div>
-				<button id="logout-button" class="btn-logout">Log out</button>
-			</div>
+			<nav class="tab-nav" aria-label="Dashboard sections">
+				<button class="tab-button active" type="button" data-tab="profile">Profile</button>
+				<button class="tab-button" type="button" data-tab="products">My products</button>
+				<button class="tab-button" type="button" data-tab="settings">Settings</button>
+				<button class="tab-button" type="button" data-tab="api">API dashboard</button>
+			</nav>
 
-			<div class="dashboard-grid">
-				<section class="stats-section">
-					<div class="stat-card">
-							<span class="stat-icon">📦</span>
-							<div class="stat-info">
-								<span class="stat-number" id="product-count">-</span>
-								<span class="stat-label">Products</span>
+			<section class="tab-panel active" data-panel="profile">
+				<section class="profile-hero surface">
+					<div class="profile-avatar" id="profile-avatar">G</div>
+					<div class="profile-identity">
+						<h2 id="profile-display-name">Loading...</h2>
+						<p id="profile-headline" class="profile-headline">Maker on GABA</p>
+						<div class="profile-meta" id="profile-meta"></div>
+						<div class="profile-stats" id="profile-stats"></div>
+					</div>
+					<div class="profile-hero-actions">
+						<button id="open-edit-profile" class="btn-outline" type="button">Edit my profile</button>
+						<button id="logout-button" class="btn-ghost" type="button">Logout</button>
+					</div>
+				</section>
+
+				<nav class="profile-subnav" aria-label="Profile sections">
+					<a href="#about-section" class="subnav-pill">About</a>
+					<a href="#badges-section" class="subnav-pill">Badges</a>
+					<a href="#recent-section" class="subnav-pill">Recent launches</a>
+				</nav>
+
+				<section id="about-section" class="profile-grid">
+					<div class="content-column">
+						<section class="surface section-surface">
+							<div class="section-head">
+								<h3>About</h3>
 							</div>
+							<div id="profile-about" class="about-box"></div>
+						</section>
+
+						<section id="badges-section" class="surface section-surface">
+							<div class="section-head">
+								<h3>Badges</h3>
+							</div>
+							<div id="badge-list" class="badge-list"></div>
+						</section>
+
+						<section id="recent-section" class="surface section-surface">
+							<div class="section-head">
+								<h3>Recently launched</h3>
+							</div>
+							<div id="recent-launches" class="recent-list"></div>
+						</section>
 					</div>
-					<div class="stat-card">
-						<span class="stat-icon">🚀</span>
-						<div class="stat-info">
-							<span class="stat-number" id="active-products">-</span>
-							<span class="stat-label">Active</span>
+
+					<aside class="side-column">
+						<section class="surface section-surface">
+							<div class="section-head">
+								<div>
+									<h3>Maker plan</h3>
+									<p>Your current subscription snapshot.</p>
+								</div>
+							</div>
+							<div id="subscription-status" class="subscription-box">
+								<p class="loading">Loading...</p>
+							</div>
+							<a href="/pricing" class="btn-outline">Manage plan</a>
+						</section>
+					</aside>
+				</section>
+			</section>
+
+			<section class="tab-panel" data-panel="products">
+				<section class="surface section-surface">
+					<div class="section-head">
+						<div>
+							<h3>My products & launches</h3>
+							<p>Track launch status, drafts, and active listings from one place.</p>
 						</div>
+						<a href="/vendor/products/new" class="btn-primary">Submit product</a>
 					</div>
-					<div class="stat-card">
-						<span class="stat-icon">📊</span>
-						<div class="stat-info">
-							<span class="stat-number" id="subscription-tier">-</span>
-							<span class="stat-label">Plan</span>
+					<div class="products-grid">
+						<div class="products-card">
+							<h4>Launches</h4>
+							<div id="launch-filters" class="filter-list"></div>
+						</div>
+						<div class="products-card">
+							<h4>Products</h4>
+							<div id="product-summary-list" class="summary-list"></div>
+						</div>
+						<div class="products-card">
+							<h4>Need help?</h4>
+							<div class="help-links">
+								<a href="/about">Launch guide</a>
+								<a href="/pricing">Plans and support</a>
+							</div>
 						</div>
 					</div>
 				</section>
-
-				<section class="subscription-card" id="subscription-section">
-					<div class="subscription-info">
-						<h2>Your Maker Plan</h2>
-						<div id="subscription-status">
-							<p class="loading">Loading...</p>
+				<section class="surface section-surface products-list-surface">
+					<div class="section-head compact-head">
+						<div>
+							<h3 id="products-panel-title">All launches</h3>
+							<p id="products-panel-copy">Loading your launches...</p>
 						</div>
-					</div>
-					<a href="/pricing" class="btn-secondary">Manage Plan</a>
-				</section>
-
-				<section class="products-section">
-					<div class="section-header">
-						<h2>Your Products</h2>
-						<a href="/vendor/products/new" class="btn-primary">+ Submit Product</a>
 					</div>
 					<div id="products-list" class="products-list">
 						<p class="loading">Loading products...</p>
 					</div>
 				</section>
-			</div>
+			</section>
+
+			<section class="tab-panel" data-panel="settings">
+				<section class="settings-grid">
+					<section class="surface section-surface">
+						<div class="section-head">
+							<div>
+								<h3>Verification</h3>
+								<p>Show that this maker account is real and actively managed.</p>
+							</div>
+						</div>
+						<div id="verification-status" class="settings-copy"></div>
+						<div class="settings-actions">
+							<button id="verify-account-button" class="btn-primary" type="button">Verify account</button>
+						</div>
+					</section>
+
+					<section class="surface section-surface">
+						<div class="section-head">
+							<div>
+								<h3>Account state</h3>
+								<p>Control whether the account remains active.</p>
+							</div>
+						</div>
+						<div id="account-status-copy" class="settings-copy"></div>
+						<div class="settings-actions">
+							<button id="deactivate-account-button" class="btn-outline danger-outline" type="button">Deactivate account</button>
+						</div>
+					</section>
+
+					<section class="surface section-surface">
+						<div class="section-head">
+							<div>
+								<h3>Delete account</h3>
+								<p>Keep this conservative until a full self-serve delete flow exists.</p>
+							</div>
+						</div>
+						<div class="settings-copy">
+							<p>A delete request marks the account for removal review and signs you out.</p>
+						</div>
+						<div class="settings-actions">
+							<button id="delete-account-button" class="btn-danger" type="button">Request account deletion</button>
+						</div>
+					</section>
+				</section>
+			</section>
+
+			<section class="tab-panel" data-panel="api">
+				<section class="surface section-surface api-panel">
+					<div class="section-head">
+						<div>
+							<h3>API dashboard</h3>
+							<p>Reserved for API keys, webhooks, and product automation.</p>
+						</div>
+					</div>
+					<div class="api-placeholder">
+						<strong>Coming next</strong>
+						<p>Generate publish tokens, connect product pipelines, and inspect launch activity from one place.</p>
+					</div>
+				</section>
+			</section>
 		</main>
+		<div id="edit-profile-modal" class="modal-shell" hidden>
+			<div class="modal-backdrop" data-close-modal></div>
+			<section class="modal-panel surface" aria-labelledby="edit-profile-title" aria-modal="true" role="dialog">
+				<div class="section-head modal-head">
+					<div>
+						<h3 id="edit-profile-title">Edit profile</h3>
+						<p>Update your public maker details.</p>
+					</div>
+					<div class="modal-head-actions">
+						<span id="profile-status" class="inline-note">Signed in</span>
+						<button id="close-edit-profile" class="modal-close" type="button" aria-label="Close edit profile">×</button>
+					</div>
+				</div>
+
+				<form id="profile-form" class="profile-form">
+					<label>
+						<span>Contact name</span>
+						<input id="profile-name" name="name" type="text" placeholder="Your name" />
+					</label>
+					<label>
+						<span>Maker or studio</span>
+						<input id="profile-business" name="businessName" type="text" placeholder="Studio or business name" />
+					</label>
+					<label>
+						<span>Headline</span>
+						<input id="profile-headline-input" name="headline" type="text" placeholder="I'm a builder shipping useful tools" />
+					</label>
+					<label>
+						<span>Phone</span>
+						<input id="profile-phone" name="phone" type="tel" placeholder="+263 77 123 4567" />
+					</label>
+					<label class="full-span">
+						<span>Bio</span>
+						<textarea id="profile-bio" name="bio" rows="5" placeholder="Add a bio so people can understand your work, skills, and what you are building."></textarea>
+					</label>
+					<label class="full-span">
+						<span>Email</span>
+						<input id="profile-email" name="email" type="email" readonly />
+					</label>
+					<div class="form-actions full-span">
+						<button id="save-profile-button" class="btn-primary" type="submit">Save profile</button>
+						<span id="profile-message" class="form-message"></span>
+					</div>
+				</form>
+			</section>
+		</div>
 		<Footer />
 	</body>
 </html>
 
 <script>
-	import { convexQuery, signOut } from '../../lib/convexAuthClient';
+	import { convexMutation, convexQuery, signOut } from '../../lib/convexAuthClient';
 
-	function renderProducts(products: any[]) {
-		const productsList = document.getElementById('products-list');
-		if (!productsList) return;
+	type UserRecord = any;
+	type ProductRecord = any;
+	type SubscriptionRecord = any;
 
-		if (products.length === 0) {
-			productsList.innerHTML = `
-				<div class="empty-state">
-					<p>No products yet</p>
-					<a href="/vendor/products/new" class="btn-primary">Submit Your First Product</a>
-				</div>
-			`;
-			return;
-		}
+	let currentUser: UserRecord = null;
+	let currentProducts: ProductRecord[] = [];
+	let currentSubscription: SubscriptionRecord = null;
+	let activeProductFilter = 'all';
 
-		const launchLabel = (launchAt?: number) => {
-			if (!launchAt) return '';
-			return new Date(launchAt).toLocaleString('en-GB', {
-				year: 'numeric',
-				month: 'short',
-				day: 'numeric',
-				hour: '2-digit',
-				minute: '2-digit',
-			});
-		};
-
-		productsList.innerHTML = products.map((product: any) => `
-			<div class="product-item">
-				<div class="product-info">
-					<h3>${product.name}</h3>
-					<span class="category-badge">${product.category}</span>
-					<span class="status-badge ${product.status}">${product.status}</span>
-					${product.launchAt ? `<span class="launch-badge">Launch: ${launchLabel(product.launchAt)}</span>` : ''}
-				</div>
-				<div class="product-actions">
-					<span class="btn-edit">Edit later</span>
-					<a href="${product.liveUrl || product.demoUrl || product.repoUrl || '/'}" target="_blank" class="btn-view">View</a>
-				</div>
-			</div>
-		`).join('');
+	function getInitials(user: UserRecord) {
+		const source = user?.name || user?.businessName || user?.email || 'G';
+		return source
+			.split(/\s+/)
+			.map((part: string) => part[0] || '')
+			.join('')
+			.slice(0, 2)
+			.toUpperCase();
 	}
 
-	function renderSubscription(subscription: any) {
-		const tierEl = document.getElementById('subscription-tier');
+	function setActiveTab(tab: string, updateHistory = true) {
+		const nextTab = ['profile', 'products', 'settings', 'api'].includes(tab) ? tab : 'profile';
+		document.querySelectorAll('.tab-button').forEach((button) => {
+			button.classList.toggle('active', (button as HTMLButtonElement).dataset.tab === nextTab);
+		});
+		document.querySelectorAll('.tab-panel').forEach((panel) => {
+			panel.classList.toggle('active', panel.getAttribute('data-panel') === nextTab);
+		});
+
+		if (updateHistory) {
+			const url = new URL(window.location.href);
+			url.searchParams.set('tab', nextTab);
+			window.history.replaceState({}, '', url.toString());
+		}
+	}
+
+	function getProductCollections(products: ProductRecord[]) {
+		const now = Date.now();
+		const scheduled = products.filter((product) => typeof product.launchAt === 'number' && product.launchAt > now);
+		const drafts = products.filter((product) => product.status === 'draft');
+		const posted = products.filter((product) => product.status === 'active' && (!product.launchAt || product.launchAt <= now));
+		const inProgress = products.filter((product) => product.reviewStatus === 'pending' || product.status === 'draft');
+		return {
+			all: products,
+			in_progress: inProgress,
+			drafts,
+			scheduled,
+			posted,
+		};
+	}
+
+	function formatDate(dateValue?: number) {
+		if (!dateValue) return 'No launch date set';
+		return new Date(dateValue).toLocaleString('en-US', {
+			month: 'long',
+			day: 'numeric',
+			year: 'numeric',
+			hour: 'numeric',
+			minute: '2-digit',
+		});
+	}
+
+	function setProfileMessage(text: string, type: 'error' | 'success' | 'neutral' = 'neutral') {
+		const messageEl = document.getElementById('profile-message');
+		if (!messageEl) return;
+		messageEl.textContent = text;
+		messageEl.dataset.type = type;
+	}
+
+	function fillProfileForm(user: UserRecord) {
+		const nameInput = document.getElementById('profile-name') as HTMLInputElement | null;
+		const businessInput = document.getElementById('profile-business') as HTMLInputElement | null;
+		const headlineInput = document.getElementById('profile-headline-input') as HTMLInputElement | null;
+		const phoneInput = document.getElementById('profile-phone') as HTMLInputElement | null;
+		const bioInput = document.getElementById('profile-bio') as HTMLTextAreaElement | null;
+		const emailInput = document.getElementById('profile-email') as HTMLInputElement | null;
+
+		if (nameInput) nameInput.value = user?.name || '';
+		if (businessInput) businessInput.value = user?.businessName || '';
+		if (headlineInput) headlineInput.value = user?.headline || '';
+		if (phoneInput) phoneInput.value = user?.phone || '';
+		if (bioInput) bioInput.value = user?.bio || '';
+		if (emailInput) emailInput.value = user?.email || '';
+	}
+
+	function renderProfileTab(user: UserRecord, products: ProductRecord[], subscription: SubscriptionRecord | null) {
+		const avatar = document.getElementById('profile-avatar');
+		const displayName = document.getElementById('profile-display-name');
+		const headline = document.getElementById('profile-headline');
+		const meta = document.getElementById('profile-meta');
+		const stats = document.getElementById('profile-stats');
+		const about = document.getElementById('profile-about');
+		const badges = document.getElementById('badge-list');
+		const recent = document.getElementById('recent-launches');
+		const profileStatus = document.getElementById('profile-status');
+
+		if (avatar) avatar.textContent = getInitials(user);
+		if (displayName) displayName.textContent = user?.businessName || user?.name || 'GABA maker';
+		if (headline) headline.textContent = user?.headline || "I'm a builder shipping useful tools";
+		if (profileStatus) profileStatus.textContent = user?.email || 'Signed in';
+
+		const activeCount = products.filter((product) => product.status === 'active').length;
+		const scheduledCount = products.filter((product) => typeof product.launchAt === 'number' && product.launchAt > Date.now()).length;
+		if (meta) {
+			meta.innerHTML = `
+				<span>${user?.email || 'No email available'}</span>
+				<span>${products.length} launches</span>
+				<span>${activeCount} active</span>
+			`;
+		}
+
+		if (stats) {
+			stats.innerHTML = `
+				<div class="profile-stat"><strong>${products.length}</strong><span>Products</span></div>
+				<div class="profile-stat"><strong>${scheduledCount}</strong><span>Scheduled</span></div>
+				<div class="profile-stat"><strong>${subscription?.tierInfo?.name || 'Free'}</strong><span>Plan</span></div>
+			`;
+		}
+
+		if (about) {
+			about.innerHTML = user?.bio
+				? `<p>${user.bio}</p>`
+				: '<p><button type="button" class="inline-action" data-open-edit-inline>Add a bio</button> to help people understand your work, skills, history, and current launches.</p>';
+		}
+
+		if (badges) {
+			const badgeItems = [
+				{ tone: 'gold', label: products.length > 0 ? 'Shipper' : 'Getting started', value: `${products.length} launch${products.length === 1 ? '' : 'es'}` },
+				{ tone: 'green', label: activeCount > 0 ? 'Live maker' : 'Pre-launch', value: `${activeCount} active` },
+				{ tone: 'blue', label: subscription?.tierInfo?.name || 'Free plan', value: subscription?.daysRemaining ? `${subscription.daysRemaining} days left` : 'Plan available' },
+			];
+			badges.innerHTML = badgeItems.map((badge) => `
+				<div class="badge-card ${badge.tone}">
+					<span>${badge.label}</span>
+					<strong>${badge.value}</strong>
+				</div>
+			`).join('');
+		}
+
+		if (recent) {
+			const orderedProducts = [...products].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 3);
+			if (orderedProducts.length === 0) {
+				recent.innerHTML = '<p class="empty-note">No launches yet. Your next submission will show up here.</p>';
+			} else {
+				recent.innerHTML = orderedProducts.map((product) => `
+					<article class="recent-item">
+						<div class="recent-mark">${(product.name || 'P').slice(0, 1).toUpperCase()}</div>
+						<div>
+							<h4>${product.name}</h4>
+							<p>${product.tagline || product.problemSolved || 'No summary yet.'}</p>
+						</div>
+						<a href="${product.liveUrl || product.demoUrl || product.repoUrl || '/'}" class="mini-link" target="_blank" rel="noreferrer">View</a>
+					</article>
+				`).join('');
+			}
+		}
+	}
+
+	function renderSubscription(subscription: SubscriptionRecord | null) {
 		const statusEl = document.getElementById('subscription-status');
-		if (!tierEl || !statusEl) return;
+		if (!statusEl) return;
 
 		if (!subscription) {
-			tierEl.textContent = 'Free';
-			statusEl.innerHTML = '<p>No active maker plan yet. Choose a plan to submit more products.</p>';
+			statusEl.innerHTML = '<p>No active maker plan yet.</p><p>Choose a plan when you want more submissions or featured visibility.</p>';
 			return;
 		}
 
-		tierEl.textContent = subscription.tierInfo.name;
 		statusEl.innerHTML = `
-			<p><strong>Status:</strong> ${subscription.status}</p>
-			<p><strong>Plan:</strong> ${subscription.tierInfo.name}</p>
-			<p><strong>Days remaining:</strong> ${subscription.daysRemaining}</p>
+			<div class="subscription-grid">
+				<div><span>Status</span><strong>${subscription.status}</strong></div>
+				<div><span>Plan</span><strong>${subscription.tierInfo.name}</strong></div>
+				<div><span>Days left</span><strong>${subscription.daysRemaining}</strong></div>
+			</div>
 		`;
 	}
 
-	async function loadDashboard() {
-		const productsList = document.getElementById('products-list');
+	function renderProductsNavigation(products: ProductRecord[]) {
+		const filterContainer = document.getElementById('launch-filters');
+		const summaryContainer = document.getElementById('product-summary-list');
+		if (!filterContainer || !summaryContainer) return;
 
+		const collections = getProductCollections(products);
+		const filterDefs = [
+			{ key: 'all', label: 'All', count: collections.all.length },
+			{ key: 'in_progress', label: 'In Progress', count: collections.in_progress.length },
+			{ key: 'drafts', label: 'Drafts', count: collections.drafts.length },
+			{ key: 'scheduled', label: 'Scheduled', count: collections.scheduled.length },
+			{ key: 'posted', label: 'Posted', count: collections.posted.length },
+		];
+
+		filterContainer.innerHTML = filterDefs.map((filter) => `
+			<button type="button" class="filter-button${filter.key === activeProductFilter ? ' active' : ''}" data-filter="${filter.key}">
+				<span class="filter-label">${filter.label}</span>
+				<span class="filter-count">${filter.count}</span>
+			</button>
+		`).join('');
+
+		summaryContainer.innerHTML = products.length === 0
+			? '<p class="empty-note">No products yet.</p>'
+			: products.map((product) => `
+				<div class="summary-item">
+					<div class="summary-mark">${(product.name || 'P').slice(0, 1).toUpperCase()}</div>
+					<div>
+						<strong>${product.name}</strong>
+						<span>${product.status}</span>
+					</div>
+				</div>
+			`).join('');
+
+		filterContainer.querySelectorAll('.filter-button').forEach((button) => {
+			button.addEventListener('click', () => {
+				activeProductFilter = (button as HTMLButtonElement).dataset.filter || 'all';
+				renderProductsNavigation(currentProducts);
+				renderProductsList(currentProducts);
+			});
+		});
+	}
+
+	function renderProductsList(products: ProductRecord[]) {
+		const productsList = document.getElementById('products-list');
+		const panelTitle = document.getElementById('products-panel-title');
+		const panelCopy = document.getElementById('products-panel-copy');
+		if (!productsList || !panelTitle || !panelCopy) return;
+
+		const collections = getProductCollections(products);
+		const filtered = collections[activeProductFilter as keyof typeof collections] || collections.all;
+		const labels: Record<string, string> = {
+			all: 'All launches',
+			in_progress: 'In progress',
+			drafts: 'Drafts',
+			scheduled: 'Scheduled',
+			posted: 'Posted',
+		};
+		panelTitle.textContent = labels[activeProductFilter] || 'All launches';
+		panelCopy.textContent = filtered.length === 0 ? 'Nothing in this section yet.' : `${filtered.length} item${filtered.length === 1 ? '' : 's'} in this section.`;
+
+		if (filtered.length === 0) {
+			productsList.innerHTML = '<p class="empty-note">No launches in this section yet.</p>';
+			return;
+		}
+
+		productsList.innerHTML = filtered.map((product) => {
+			const statusLabel = product.status === 'active' ? 'Posted' : typeof product.launchAt === 'number' && product.launchAt > Date.now() ? 'Scheduled' : 'Draft';
+			return `
+				<article class="launch-card">
+					<div class="launch-mark">${(product.name || 'P').slice(0, 1).toUpperCase()}</div>
+					<div class="launch-copy">
+						<div class="launch-title-row">
+							<h4>${product.name}</h4>
+							<span class="launch-chip">${statusLabel}</span>
+						</div>
+						<p>${product.tagline || product.problemSolved || product.description || 'No summary yet.'}</p>
+						<span class="launch-time">${typeof product.launchAt === 'number' ? `Scheduled on ${formatDate(product.launchAt)}` : 'Launch date not scheduled yet'}</span>
+						<span class="launch-edited">Last edited ${formatDate(product.updatedAt)}</span>
+					</div>
+					<div class="launch-actions">
+						<a href="/vendor/dashboard?tab=profile" class="btn-outline">Profile dashboard</a>
+						<a href="${product.liveUrl || product.demoUrl || product.repoUrl || '/vendor/products/new'}" class="btn-primary" target="_blank" rel="noreferrer">View</a>
+					</div>
+				</article>
+			`;
+		}).join('');
+	}
+
+	function renderSettings(user: UserRecord) {
+		const verification = document.getElementById('verification-status');
+		const accountStatus = document.getElementById('account-status-copy');
+		if (verification) {
+			verification.innerHTML = user?.verificationRequestedAt
+				? `<p>Verification requested on ${formatDate(user.verificationRequestedAt)}.</p>`
+				: '<p>No verification request yet. Use this when you want a reviewed maker account.</p>';
+		}
+		if (accountStatus) {
+			accountStatus.innerHTML = `<p>Current state: <strong>${user?.accountStatus || 'active'}</strong>.</p>`;
+		}
+	}
+
+	async function loadDashboard() {
 		try {
 			const [user, products, subscription] = await Promise.all([
 				convexQuery('users:getCurrent'),
@@ -148,28 +523,113 @@ import Footer from '../../components/Footer.astro';
 				return;
 			}
 
-			const welcomeMessage = document.getElementById('welcome-message');
-			if (welcomeMessage && user.name) {
-				welcomeMessage.textContent = `Welcome back, ${user.name}. Manage your product submissions and maker plan.`;
-			}
+			currentUser = user;
+			currentProducts = products;
+			currentSubscription = subscription;
 
-			const productCount = document.getElementById('product-count');
-			const activeProducts = document.getElementById('active-products');
-			if (productCount) productCount.textContent = products.length.toString();
-			if (activeProducts) activeProducts.textContent = products.filter((p: any) => p.status === 'active').length.toString();
-
-			renderProducts(products);
+			fillProfileForm(user);
+			renderProfileTab(user, products, subscription);
 			renderSubscription(subscription);
+			renderProductsNavigation(products);
+			renderProductsList(products);
+			renderSettings(user);
+			setProfileMessage('Profile details are ready.');
+
+			const requestedTab = new URL(window.location.href).searchParams.get('tab') || 'profile';
+			setActiveTab(requestedTab, false);
 		} catch (error) {
 			console.error('Failed to load dashboard:', error);
-			if (productsList) {
-				productsList.innerHTML = '<p class="error">Please sign in again to view your dashboard.</p>';
-			}
 			window.setTimeout(() => {
 				window.location.href = '/vendor';
 			}, 1200);
 		}
 	}
+
+	document.querySelectorAll('.tab-button').forEach((button) => {
+		button.addEventListener('click', () => {
+			setActiveTab((button as HTMLButtonElement).dataset.tab || 'profile');
+		});
+	});
+
+	const editProfileModal = document.getElementById('edit-profile-modal');
+	const openEditProfile = () => {
+		editProfileModal?.removeAttribute('hidden');
+		document.body.style.overflow = 'hidden';
+	};
+	const closeEditProfile = () => {
+		editProfileModal?.setAttribute('hidden', '');
+		document.body.style.overflow = '';
+	};
+
+	document.getElementById('open-edit-profile')?.addEventListener('click', openEditProfile);
+	document.getElementById('close-edit-profile')?.addEventListener('click', closeEditProfile);
+	document.querySelectorAll('[data-close-modal]').forEach((element) => {
+		element.addEventListener('click', closeEditProfile);
+	});
+	document.addEventListener('click', (event) => {
+		const target = event.target as HTMLElement | null;
+		if (target?.matches('[data-open-edit-inline]')) {
+			openEditProfile();
+		}
+	});
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && !editProfileModal?.hasAttribute('hidden')) {
+			closeEditProfile();
+		}
+	});
+
+	document.getElementById('profile-form')?.addEventListener('submit', async (event) => {
+		event.preventDefault();
+		const form = event.currentTarget as HTMLFormElement;
+		const button = document.getElementById('save-profile-button') as HTMLButtonElement | null;
+		const formData = new FormData(form);
+
+		try {
+			if (button) button.disabled = true;
+			setProfileMessage('Saving profile...');
+			const updatedUser = await convexMutation('users:updateCurrentProfile', {
+				name: String(formData.get('name') || '').trim(),
+				businessName: String(formData.get('businessName') || '').trim(),
+				headline: String(formData.get('headline') || '').trim(),
+				phone: String(formData.get('phone') || '').trim(),
+				bio: String(formData.get('bio') || '').trim(),
+			});
+			currentUser = updatedUser;
+			fillProfileForm(updatedUser);
+			renderProfileTab(updatedUser, currentProducts, currentSubscription);
+			renderSettings(updatedUser);
+			setProfileMessage('Profile updated.', 'success');
+			closeEditProfile();
+		} catch (error: any) {
+			setProfileMessage(error?.message || 'Could not save profile.', 'error');
+		} finally {
+			if (button) button.disabled = false;
+		}
+	});
+
+	document.getElementById('verify-account-button')?.addEventListener('click', async () => {
+		const updatedUser = await convexMutation('users:requestVerification');
+		currentUser = updatedUser;
+		renderSettings(updatedUser);
+		setProfileMessage('Verification request submitted.', 'success');
+		setActiveTab('settings');
+	});
+
+	document.getElementById('deactivate-account-button')?.addEventListener('click', async () => {
+		const confirmed = window.confirm('Deactivate this account and sign out?');
+		if (!confirmed) return;
+		await convexMutation('users:deactivateCurrentAccount');
+		await signOut();
+		window.location.href = '/vendor';
+	});
+
+	document.getElementById('delete-account-button')?.addEventListener('click', async () => {
+		const confirmed = window.confirm('Request account deletion and sign out?');
+		if (!confirmed) return;
+		await convexMutation('users:requestAccountDeletion');
+		await signOut();
+		window.location.href = '/vendor';
+	});
 
 	document.getElementById('logout-button')?.addEventListener('click', async () => {
 		await signOut();
@@ -181,195 +641,602 @@ import Footer from '../../components/Footer.astro';
 
 <style>
 	.dashboard {
-		max-width: 1000px;
-		margin: 0 auto;
-		padding: 2em 1em;
+		width: min(1320px, calc(100% - 3rem));
+		max-width: none;
+		padding: 1.4rem 0 4rem;
 	}
-	.dashboard-header {
-		margin-bottom: 2em;
+	.tab-nav {
 		display: flex;
-		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-bottom: 1.5rem;
+	}
+	.tab-button,
+	.subnav-pill,
+	.btn-primary,
+	.btn-outline,
+	.btn-ghost,
+	.btn-danger {
+		display: inline-flex;
 		align-items: center;
-		gap: 1em;
-	}
-	.dashboard-header h1 {
-		color: var(--zim-green);
-		margin-bottom: 0.5em;
-	}
-	.dashboard-header p {
-		color: rgb(var(--gray));
-	}
-	.dashboard-grid {
-		display: grid;
-		gap: 2em;
-	}
-	.stats-section {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-		gap: 1em;
-	}
-	.stat-card {
-		display: flex;
-		align-items: center;
-		gap: 1em;
-		padding: 1.5em;
-		background: white;
-		border-radius: 12px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-	}
-	.stat-icon {
-		font-size: 2em;
-	}
-	.stat-info {
-		display: flex;
-		flex-direction: column;
-	}
-	.stat-number {
-		font-size: 1.5em;
-		font-weight: bold;
-		color: rgb(var(--gray-dark));
-	}
-	.stat-label {
-		color: rgb(var(--gray));
-		font-size: 0.9em;
-	}
-	.subscription-card {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 1.5em;
-		background: linear-gradient(135deg, var(--zim-green), #2d7a38);
-		border-radius: 12px;
-		color: white;
-	}
-	.subscription-info h2 {
-		color: white;
-		margin-bottom: 0.5em;
-	}
-	.btn-secondary {
-		padding: 0.75em 1.5em;
-		background: white;
-		color: var(--zim-green);
-		text-decoration: none;
-		border-radius: 8px;
-		font-weight: 600;
-	}
-	.btn-secondary:hover {
-		background: var(--zim-gold);
-	}
-	.btn-logout {
-		padding: 0.75em 1em;
-		border: 1px solid rgb(var(--gray-light));
-		background: white;
-		border-radius: 8px;
-		cursor: pointer;
-		font-weight: 600;
-	}
-	.btn-logout:hover {
-		background: rgb(var(--gray-light));
-	}
-	.products-section {
-		background: white;
-		border-radius: 12px;
-		padding: 1.5em;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-	}
-	.section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 1.5em;
-	}
-	.section-header h2 {
-		margin: 0;
-	}
-	.btn-primary {
-		padding: 0.5em 1em;
-		background: var(--zim-green);
-		color: white;
-		text-decoration: none;
+		justify-content: center;
+		min-height: 42px;
+		padding: 0 1rem;
 		border-radius: 6px;
-		font-weight: 600;
+		font-size: 0.88rem;
+		font-weight: 900;
+		letter-spacing: 0.02em;
+		text-decoration: none;
 	}
-	.products-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1em;
+	.tab-button {
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		background: #f8fafc;
+		color: #64748b;
+		cursor: pointer;
+		font-size: 0.72rem;
+		letter-spacing: 0.14em;
+		min-height: 38px;
+		padding: 0 0.95rem;
+		text-transform: uppercase;
 	}
-	.product-item {
-		display: flex;
-		justify-content: space-between;
+	.tab-button.active {
+		background: white;
+		border-color: var(--accent);
+		color: #0f172a;
+	}
+	.tab-panel {
+		display: none;
+	}
+	.tab-panel.active {
+		display: block;
+	}
+	.surface {
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		background: white;
+	}
+	.profile-hero {
+		display: grid;
+		grid-template-columns: 160px minmax(0, 1fr) auto;
+		gap: 2rem;
 		align-items: center;
-		padding: 1em;
-		border: 1px solid rgb(var(--gray-light));
-		border-radius: 8px;
+		padding: 2rem;
 	}
-	.product-info h3 {
-		margin: 0 0 0.5em 0;
+	.profile-avatar {
+		display: grid;
+		width: 160px;
+		height: 160px;
+		place-items: center;
+		border-radius: 12px;
+		background: radial-gradient(circle at 30% 30%, #818cf8, #4f46e5 55%, #e9d5ff 100%);
+		color: white;
+		font-size: 3.5rem;
+		font-weight: 900;
 	}
-	.category-badge {
-		display: inline-block;
-		padding: 0.2em 0.5em;
-		background: var(--zim-gold);
-		color: black;
-		border-radius: 4px;
-		font-size: 0.75em;
-		font-weight: 600;
-		margin-right: 0.5em;
+	.profile-identity h2 {
+		margin: 0;
+		font-size: clamp(2rem, 3.4vw, 3rem);
 	}
-	.status-badge,
-	.launch-badge {
-		display: inline-block;
-		padding: 0.2em 0.5em;
-		border-radius: 4px;
-		font-size: 0.75em;
-		font-weight: 600;
+	.profile-headline {
+		margin: 0.55rem 0 0;
+		color: #475569;
+		font-size: 1.1rem;
 	}
-	.launch-badge {
-		margin-left: 0.5em;
-		background: #f1f5f9;
+	.profile-meta,
+	.profile-stats {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1.2rem;
+		margin-top: 1rem;
+		color: #566b95;
+	}
+	.profile-stats {
+		margin-top: 1.35rem;
+	}
+	.profile-stat {
+		padding: 0.8rem 1rem;
+		border-radius: 6px;
+		background: #f8fafc;
+	}
+	.profile-stat strong,
+	.profile-stat span {
+		display: block;
+	}
+	.profile-stat strong {
+		color: #0f172a;
+		font-size: 1.1rem;
+	}
+	.profile-stat span {
+		margin-top: 0.15rem;
+		color: #64748b;
+		font-size: 0.8rem;
+	}
+	.profile-subnav {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.85rem;
+		padding: 1.4rem 0;
+	}
+	.subnav-pill {
+		border: 1px solid #e2e8f0;
+		background: #f8fafc;
 		color: #334155;
 	}
-	.status-badge.active {
-		background: rgba(49, 155, 50, 0.2);
-		color: var(--zim-green);
+	.profile-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+		gap: 1.5rem;
 	}
-	.status-badge.draft {
-		background: rgba(236, 177, 17, 0.2);
-		color: var(--zim-gold);
+	.content-column,
+	.side-column {
+		display: grid;
+		gap: 1.5rem;
+		align-content: start;
 	}
-	.status-badge.archived {
-		background: rgba(215, 20, 61, 0.2);
-		color: var(--zim-red);
+	.section-surface {
+		padding: 1.4rem;
 	}
-	.product-actions {
+	.section-head {
 		display: flex;
-		gap: 0.5em;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1rem;
 	}
-	.btn-edit, .btn-view {
-		padding: 0.5em 1em;
-		text-decoration: none;
+	.section-head h3 {
+		margin: 0;
+		font-size: 1.1rem;
+	}
+	.section-head p {
+		margin: 0.35rem 0 0;
+		color: #64748b;
+		font-size: 0.92rem;
+	}
+	.about-box {
+		padding: 1.2rem;
 		border-radius: 6px;
-		font-size: 0.9em;
+		background: #f8fafc;
+		color: #334155;
+		font-size: 1.02rem;
+		line-height: 1.65;
 	}
-	.btn-edit {
-		background: rgb(var(--gray-light));
-		color: rgb(var(--gray-dark));
+	.about-box p {
+		margin: 0;
 	}
-	.btn-view {
-		background: var(--zim-green);
+	.about-box a,
+	.help-links a,
+	.mini-link,
+	.inline-action {
+		color: inherit;
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	.inline-action {
+		padding: 0;
+		border: 0;
+		background: transparent;
+		font: inherit;
+		cursor: pointer;
+	}
+	.badge-list {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+	.badge-card {
+		padding: 1rem;
+		border-radius: 6px;
+		background: #f8fafc;
+	}
+	.badge-card span,
+	.badge-card strong {
+		display: block;
+	}
+	.badge-card span {
+		font-size: 0.82rem;
+		color: #475569;
+	}
+	.badge-card strong {
+		margin-top: 0.35rem;
+		font-size: 1rem;
+		color: #0f172a;
+	}
+	.badge-card.gold {
+		background: #fff7ed;
+	}
+	.badge-card.green {
+		background: #ecfdf5;
+	}
+	.badge-card.blue {
+		background: #eef2ff;
+	}
+	.recent-list {
+		display: grid;
+		gap: 1rem;
+	}
+	.recent-item,
+	.summary-item,
+	.launch-card {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+	.recent-item {
+		padding: 1rem 0;
+		border-top: 1px solid #eef2f7;
+	}
+	.recent-item:first-child {
+		padding-top: 0;
+		border-top: 0;
+	}
+	.recent-mark,
+	.summary-mark,
+	.launch-mark {
+		display: grid;
+		width: 52px;
+		height: 52px;
+		place-items: center;
+		border-radius: 8px;
+		background: #0f172a;
+		color: white;
+		font-weight: 900;
+	}
+	.recent-item h4 {
+		margin: 0 0 0.25rem;
+		font-size: 1rem;
+	}
+	.recent-item p {
+		margin: 0;
+		color: #64748b;
+	}
+	.inline-note {
+		color: #475569;
+		font-size: 0.82rem;
+		font-weight: 800;
+	}
+	.profile-form {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
+	}
+	.profile-form label {
+		display: grid;
+		gap: 0.45rem;
+	}
+	.profile-form label span {
+		color: #334155;
+		font-size: 0.82rem;
+		font-weight: 800;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+	.profile-form input,
+	.profile-form textarea {
+		width: 100%;
+		box-sizing: border-box;
+		padding: 0.9rem 1rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 8px;
+		background: white;
+		color: #0f172a;
+		font: inherit;
+	}
+	.profile-form input[readonly] {
+		background: #f8fafc;
+		color: #64748b;
+	}
+	.full-span {
+		grid-column: 1 / -1;
+	}
+	.form-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+	}
+	.form-message {
+		color: #64748b;
+		font-size: 0.92rem;
+	}
+	.form-message[data-type='success'] {
+		color: #047857;
+	}
+	.form-message[data-type='error'] {
+		color: #b91c1c;
+	}
+	.subscription-box {
+		padding: 1rem;
+		border-radius: 16px;
+		background: linear-gradient(145deg, #0f766e, #0f9f79);
+		color: white;
+		margin-bottom: 1rem;
+	}
+	.profile-hero-actions {
+		display: grid;
+		gap: 0.75rem;
+		align-items: start;
+	}
+	.modal-shell[hidden] {
+		display: none;
+	}
+	.modal-shell {
+		position: fixed;
+		inset: 0;
+		z-index: 80;
+		display: grid;
+		place-items: center;
+		padding: 1.5rem;
+	}
+	.modal-backdrop {
+		position: absolute;
+		inset: 0;
+		background: rgba(15, 23, 42, 0.42);
+		backdrop-filter: blur(6px);
+	}
+	.modal-panel {
+		position: relative;
+		z-index: 1;
+		width: min(820px, 100%);
+		max-height: calc(100vh - 3rem);
+		padding: 1.5rem;
+		overflow: auto;
+	}
+	.modal-head {
+		align-items: center;
+	}
+	.modal-head-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.9rem;
+	}
+	.modal-close {
+		display: inline-grid;
+		width: 36px;
+		height: 36px;
+		place-items: center;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: white;
+		color: #334155;
+		font-size: 1.3rem;
+		cursor: pointer;
+	}
+	.subscription-grid {
+		display: grid;
+		gap: 0.85rem;
+	}
+	.subscription-grid span,
+	.subscription-box p {
+		color: rgba(255, 255, 255, 0.82);
+	}
+	.products-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+	.products-card {
+		padding: 1rem 1rem 0.95rem;
+		border: 1px solid #eef2f7;
+		border-radius: 6px;
+		background: #f8fafc;
+	}
+	.products-card h4 {
+		margin: 0 0 0.9rem;
+		font-size: 0.78rem;
+		font-weight: 900;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: #475569;
+	}
+	.filter-list,
+	.summary-list,
+	.help-links {
+		display: grid;
+		gap: 0.65rem;
+	}
+	.filter-button {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		width: 100%;
+		padding: 0.82rem 0.95rem;
+		border: 1px solid #e2e8f0;
+		border-radius: 6px;
+		background: #f8fafc;
+		color: #334155;
+		font: inherit;
+		font-size: 0.94rem;
+		text-align: left;
+		cursor: pointer;
+	}
+	.filter-button.active {
+		border-color: var(--accent);
+		background: #ecfdf5;
+		color: #0f172a;
+	}
+	.filter-label {
+		font-weight: 700;
+	}
+	.filter-count {
+		min-width: 2rem;
+		padding: 0.18rem 0.45rem;
+		border-radius: 6px;
+		background: white;
+		color: #64748b;
+		font-size: 0.78rem;
+		font-weight: 800;
+		text-align: center;
+	}
+	.filter-button.active .filter-count {
+		background: rgba(5, 150, 105, 0.12);
+		color: #047857;
+	}
+	.summary-item {
+		align-items: center;
+	}
+	.summary-mark {
+		width: 36px;
+		height: 36px;
+		border-radius: 6px;
+	}
+	.summary-item strong,
+	.summary-item span {
+		display: block;
+	}
+	.summary-item span {
+		color: #64748b;
+		font-size: 0.84rem;
+		text-transform: capitalize;
+	}
+	.help-links a {
+		font-size: 0.95rem;
+	}
+	.products-list-surface {
+		margin-top: 1rem;
+	}
+	.compact-head {
+		margin-bottom: 0.9rem;
+	}
+	.products-list {
+		display: grid;
+		gap: 1rem;
+	}
+	.launch-card {
+		align-items: flex-start;
+		justify-content: space-between;
+		padding: 1.25rem 0;
+		border-top: 1px solid #eef2f7;
+	}
+	.launch-card:first-child {
+		padding-top: 0;
+		border-top: 0;
+	}
+	.launch-copy {
+		flex: 1;
+	}
+	.launch-title-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 0.45rem;
+	}
+	.launch-title-row h4 {
+		margin: 0;
+		font-size: 0.98rem;
+	}
+	.launch-chip {
+		display: inline-flex;
+		align-items: center;
+		min-height: 34px;
+		padding: 0 0.75rem;
+		border: 1px solid #dbe4f0;
+		border-radius: 6px;
+		color: #475569;
+		font-size: 0.82rem;
+		font-weight: 800;
+	}
+	.launch-copy p,
+	.launch-time,
+	.launch-edited {
+		display: block;
+		color: #64748b;
+	}
+	.launch-copy p {
+		margin: 0 0 0.55rem;
+	}
+	.launch-actions {
+		display: flex;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+	}
+	.settings-grid {
+		display: grid;
+		gap: 1.5rem;
+	}
+	.settings-copy p {
+		margin: 0;
+		color: #334155;
+		line-height: 1.6;
+	}
+	.settings-actions {
+		margin-top: 1rem;
+	}
+	.api-panel {
+		padding: 1.5rem;
+	}
+	.api-placeholder {
+		padding: 1.1rem 1.2rem;
+		border-radius: 6px;
+		background: #f8fafc;
+	}
+	.api-placeholder strong {
+		display: block;
+		margin-bottom: 0.45rem;
+	}
+	.api-placeholder p,
+	.empty-note,
+	.loading {
+		margin: 0;
+		color: #64748b;
+	}
+	.btn-primary {
+		border: 0;
+		background: var(--accent);
 		color: white;
 	}
-	.empty-state {
-		text-align: center;
-		padding: 2em;
-		color: rgb(var(--gray));
+	.btn-primary:hover {
+		background: var(--accent-dark);
 	}
-	.loading, .error {
-		text-align: center;
-		padding: 2em;
+	.btn-outline,
+	.btn-ghost {
+		border: 1px solid var(--ui-border);
+		background: white;
+		color: #334155;
 	}
-	.error {
-		color: var(--zim-red);
+	.btn-outline:hover,
+	.btn-ghost:hover {
+		border-color: #cbd5e1;
+		background: #f8fafc;
+		color: #0f172a;
+	}
+	.btn-danger {
+		border: 0;
+		background: #dc2626;
+		color: white;
+	}
+	.danger-outline {
+		color: #b91c1c;
+		border-color: #fecaca;
+	}
+	@media (max-width: 1080px) {
+		.profile-hero,
+		.profile-grid,
+		.products-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 820px) {
+		.dashboard {
+			width: min(100% - 1.5rem, 1320px);
+		}
+		.launch-card,
+		.profile-hero {
+			flex-direction: column;
+		}
+		.profile-hero {
+			display: flex;
+			align-items: flex-start;
+		}
+		.badge-list,
+		.profile-form,
+		.products-grid {
+			grid-template-columns: 1fr;
+		}
+		.form-actions,
+		.launch-actions {
+			align-items: flex-start;
+			flex-direction: column;
+		}
 	}
 </style>
