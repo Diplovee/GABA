@@ -82,13 +82,15 @@ export default defineSchema({
     .index('byUserProduct', ['userId', 'productId']),
 
   productComments: defineTable({
-    productId: v.id('products'),
+    productId: v.optional(v.id('products')),
+    targetSlug: v.optional(v.string()),
     userId: v.id('users'),
     body: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index('byProduct', ['productId', 'createdAt'])
+    .index('byTargetSlug', ['targetSlug', 'createdAt'])
     .index('byUser', ['userId']),
 
   subscriptions: defineTable({

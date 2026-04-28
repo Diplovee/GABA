@@ -286,11 +286,22 @@ export const upvote = mutation({
 });
 
 export const listComments = query({
-  args: { productId: v.id('products') },
-  handler: async (ctx, { productId }) => {
-    const comments = await ctx.db.query('productComments')
-      .withIndex('byProduct', (q) => q.eq('productId', productId))
-      .collect();
+  args: {
+    productId: v.optional(v.id('products')),
+    targetSlug: v.optional(v.string()),
+  },
+  handler: async (ctx, { productId, targetSlug }) => {
+    if (!productId && !targetSlug) {
+      throw new Error('Comment target is required');
+    }
+
+    const comments = productId
+      ? await ctx.db.query('productComments')
+        .withIndex('byProduct', (q) => q.eq('productId', productId))
+        .collect()
+      : await ctx.db.query('productComments')
+        .withIndex('byTargetSlug', (q) => q.eq('targetSlug', targetSlug))
+        .collect();
 
     return await Promise.all(comments.map(async (comment) => {
       const author = await ctx.db.get(comment.userId);
@@ -305,17 +316,22 @@ export const listComments = query({
 
 export const createComment = mutation({
   args: {
-    productId: v.id('products'),
+    productId: v.optional(v.id('products')),
+    targetSlug: v.optional(v.string()),
     body: v.string(),
   },
-  handler: async (ctx, { productId, body }) => {
+  handler: async (ctx, { productId, targetSlug, body }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       throw new Error('Sign in to comment on products');
     }
 
-    const product = await ctx.db.get(productId);
-    if (!product) {
+    if (!productId && !targetSlug) {
+      throw new Error('Comment target is required');
+    }
+
+    const product = productId ? await ctx.db.get(productId) : null;
+    if (productId && !product) {
       throw new Error('Product not found');
     }
 
@@ -330,17 +346,20 @@ export const createComment = mutation({
     const now = Date.now();
     const commentId = await ctx.db.insert('productComments', {
       productId,
+      targetSlug,
       userId,
       body: cleanBody,
       createdAt: now,
       updatedAt: now,
     });
 
-    const commentCount = (product.commentCount || 0) + 1;
-    await ctx.db.patch(productId, {
-      commentCount,
-      updatedAt: now,
-    });
+    const commentCount = product ? (product.commentCount || 0) + 1 : undefined;
+    if (product && productId) {
+      await ctx.db.patch(productId, {
+        commentCount,
+        updatedAt: now,
+      });
+    }
 
     return { commentId, commentCount };
   },
@@ -362,10 +381,10 @@ export const deleteComment = mutation({
       throw new Error('Unauthorized');
     }
 
-    const product = await ctx.db.get(comment.productId);
+    const product = comment.productId ? await ctx.db.get(comment.productId) : null;
     await ctx.db.delete(commentId);
 
-    if (product) {
+    if (product && comment.productId) {
       await ctx.db.patch(comment.productId, {
         commentCount: Math.max((product.commentCount || 1) - 1, 0),
         updatedAt: Date.now(),

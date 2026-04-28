@@ -115,71 +115,29 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 				</aside>
 			</section>
 
-			<section class="discussion-band">
+			<section class="discussion-band" data-project-slug={project.id}>
 				<div class="discussion-head">
-					<h2>Discussion</h2>
-					<span>3 comments</span>
+					<div>
+						<p class="section-kicker">Community notes</p>
+						<h2>Discussion</h2>
+					</div>
+					<span id="comment-count">Loading comments</span>
 				</div>
 
-				<div class="comment-composer">
-					<div class="composer-avatar">@</div>
+				<form id="comment-form" class="comment-composer">
+					<div class="composer-avatar" aria-hidden="true">@</div>
 					<div class="composer-body">
-						<textarea placeholder="What do you think?"></textarea>
+						<label for="comment-body">Add a useful product note</label>
+						<textarea id="comment-body" name="body" maxlength="1000" placeholder="Ask a sharp question, share field context, or point out what would make this product stronger."></textarea>
 						<div class="composer-actions">
-							<button type="button" class="composer-chip">Attach</button>
-							<button type="button" class="composer-submit">Comment</button>
+							<p id="comment-status" class="discussion-status" aria-live="polite">Sign in to post. Everyone can read the thread.</p>
+							<button type="submit" class="composer-submit">Post comment</button>
 						</div>
 					</div>
-				</div>
+				</form>
 
-				<div class="comment-thread">
-					<article class="comment">
-						<div class="comment-head">
-							<div class="comment-avatar">FM</div>
-							<div>
-								<strong>Farai Moyo</strong>
-								<span>Maker · 7d ago</span>
-							</div>
-						</div>
-						<p>This is built around one clear problem: keeping local produce moving without turning it into a logistics maze.</p>
-						<div class="comment-actions">
-							<button type="button">Upvote (5)</button>
-							<button type="button">Reply</button>
-							<button type="button">Share</button>
-						</div>
-					</article>
-
-					<article class="comment reply">
-						<div class="comment-head">
-							<div class="comment-avatar">NK</div>
-							<div>
-								<strong>Nadia K.</strong>
-								<span>1h ago</span>
-							</div>
-						</div>
-						<p>Love the country-first framing. The problem statement makes this feel much clearer than a generic delivery app.</p>
-						<div class="comment-actions">
-							<button type="button">Upvote</button>
-							<button type="button">Reply</button>
-							<button type="button">Share</button>
-						</div>
-					</article>
-
-					<article class="comment reply nested">
-						<div class="comment-head">
-							<div class="comment-avatar">FM</div>
-							<div>
-								<strong>Farai Moyo</strong>
-								<span>1h ago</span>
-							</div>
-						</div>
-						<p>That’s the filter GABA should reward: clear problem, clear maker, clear market.</p>
-						<div class="comment-actions">
-							<button type="button">Upvote (1)</button>
-							<button type="button">Reply</button>
-							<button type="button">Share</button>
-						</div>
-					</article>
+				<div id="comment-thread" class="comment-thread" aria-live="polite">
+					<div class="comment-empty">Loading discussion...</div>
 				</div>
 			</section>
 
@@ -241,7 +199,7 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		max-width: none;
 		font-size: clamp(1.7rem, 2.6vw, 2.65rem);
 		font-weight: 900;
-		letter-spacing: -0.03em;
+		letter-spacing: 0;
 		line-height: 1.06;
 		white-space: nowrap;
 		overflow: hidden;
@@ -386,118 +344,153 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 	}
 	.discussion-head {
 		display: flex;
-		align-items: baseline;
+		align-items: end;
 		justify-content: space-between;
 		gap: 1rem;
 		margin-bottom: 1.1rem;
 		padding-bottom: 0.95rem;
 		border-bottom: 1px solid var(--ui-border);
 	}
+	.section-kicker {
+		margin: 0 0 0.2rem;
+		color: #94a3b8;
+		font-size: 0.68rem;
+		font-weight: 950;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
 	.discussion-head h2 {
 		margin: 0;
 		color: #0f172a;
-		font-size: 11px;
-		font-weight: 950;
-		letter-spacing: 0.14em;
-		text-transform: uppercase;
+		font-size: 1.35rem;
+		font-weight: 900;
+		letter-spacing: 0;
 	}
 	.discussion-head span {
-		color: #94a3b8;
+		color: #64748b;
 		font-size: 0.78rem;
-		font-weight: 850;
+		font-weight: 900;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
 	}
 	.comment-composer {
 		display: grid;
-		grid-template-columns: 44px minmax(0, 1fr);
-		gap: 0.9rem;
-		padding: 1rem;
+		grid-template-columns: 42px minmax(0, 1fr);
+		gap: 0.85rem;
+		padding: 1rem 1.1rem;
 		border: 1px solid var(--ui-border);
 		border-radius: 6px;
 		background: white;
+		box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
 	}
 	.composer-avatar,
 	.comment-avatar {
 		display: grid;
 		place-items: center;
-		width: 44px;
-		height: 44px;
+		width: 42px;
+		height: 42px;
 		border: 1px solid var(--ui-border);
 		border-radius: 4px;
-		background: var(--ui-soft);
+		background: #f8fafc;
 		color: #0f172a;
 		font-size: 0.76rem;
+		font-weight: 900;
+	}
+	.comment-avatar {
+		overflow: hidden;
+	}
+	.comment-avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.composer-body label {
+		display: block;
+		margin-bottom: 0.55rem;
+		color: #0f172a;
+		font-size: 0.85rem;
 		font-weight: 900;
 	}
 	.composer-body textarea {
 		display: block;
 		width: 100%;
-		min-height: 96px;
+		min-height: 112px;
 		box-sizing: border-box;
 		padding: 0.95rem 1rem;
 		border: 1px solid var(--ui-border);
 		border-radius: 4px;
-		background: #fcfcfd;
+		background: #f8fafc;
 		color: #0f172a;
 		font: inherit;
 		font-size: 0.95rem;
+		line-height: 1.6;
 		resize: vertical;
+	}
+	.composer-body textarea:focus {
+		border-color: var(--accent);
+		background: white;
+		outline: 3px solid rgba(16, 185, 129, 0.14);
 	}
 	.composer-body textarea::placeholder {
 		color: #94a3b8;
 	}
 	.composer-actions {
 		display: flex;
-		justify-content: flex-end;
-		gap: 0.65rem;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
 		margin-top: 0.75rem;
 	}
-	.composer-chip,
+	.discussion-status {
+		margin: 0;
+		color: #64748b;
+		font-size: 0.82rem;
+		line-height: 1.5;
+	}
 	.composer-submit {
 		min-height: 38px;
-		padding: 0 1rem;
-		border: 1px solid var(--ui-border);
+		padding: 0 1.05rem;
+		border: 1px solid var(--accent);
 		border-radius: 4px;
-		background: white;
-		color: #334155;
+		background: var(--accent);
+		color: white;
 		font: inherit;
 		font-size: 0.78rem;
 		font-weight: 900;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 	}
-	.composer-submit {
-		border-color: var(--accent);
-		background: var(--accent);
-		color: white;
+	.composer-submit:hover {
+		background: var(--accent-dark);
+		border-color: var(--accent-dark);
+	}
+	.composer-submit:disabled {
+		cursor: not-allowed;
+		opacity: 0.55;
 	}
 	.comment-thread {
 		display: grid;
-		gap: 0;
-		margin-top: 1rem;
-		border: 1px solid var(--ui-border);
-		border-radius: 6px;
-		overflow: hidden;
-		background: white;
+		gap: 0.75rem;
+		margin-top: 0.95rem;
 	}
 	.comment {
-		padding: 1rem;
-		border-bottom: 1px solid var(--ui-border);
-	}
-	.comment:last-child {
-		border-bottom: 0;
-	}
-	.comment.reply {
-		margin-left: 2rem;
-		padding-left: 1rem;
-		border-left: 1px solid var(--ui-border);
-	}
-	.comment.reply.nested {
-		margin-left: 4rem;
+		padding: 1rem 1.1rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		background: white;
+		box-shadow: 0 8px 20px rgba(15, 23, 42, 0.035);
 	}
 	.comment-head {
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
 		gap: 0.75rem;
+	}
+	.comment-author {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-width: 0;
 	}
 	.comment-head strong {
 		display: block;
@@ -512,31 +505,27 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		font-size: 0.76rem;
 		font-weight: 750;
 	}
+	.comment-time {
+		flex: 0 0 auto;
+		color: #94a3b8;
+		font-size: 0.74rem;
+		font-weight: 850;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
 	.comment p {
 		margin: 0.85rem 0 0;
 		color: #334155;
 		line-height: 1.7;
 	}
-	.comment-actions {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 1rem;
-		margin-top: 0.9rem;
-		padding-top: 0.85rem;
-		border-top: 1px solid var(--ui-border);
-	}
-	.comment-actions button {
-		padding: 0;
-		border: 0;
-		background: transparent;
-		color: #334155;
-		font: inherit;
-		font-size: 0.8rem;
-		font-weight: 850;
-		letter-spacing: 0.02em;
-	}
-	.comment-actions button:hover {
-		color: var(--accent);
+	.comment-empty {
+		padding: 1.25rem;
+		border: 1px dashed var(--ui-border);
+		border-radius: 6px;
+		background: #f8fafc;
+		color: #64748b;
+		font-size: 0.92rem;
+		line-height: 1.6;
 	}
 	.detail-main,
 	.detail-side {
@@ -641,12 +630,6 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		.detail-grid {
 			padding-inline: 0;
 		}
-		.comment.reply {
-			margin-left: 1rem;
-		}
-		.comment.reply.nested {
-			margin-left: 1.75rem;
-		}
 		.hero-main h1 {
 			white-space: normal;
 			overflow: visible;
@@ -664,3 +647,139 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		}
 	}
 </style>
+
+<script>
+	import { ConvexHttpClient } from 'convex/browser';
+
+	type ProductComment = {
+		_id: string;
+		body: string;
+		createdAt: number;
+		authorName?: string;
+		authorImage?: string;
+	};
+
+	const discussion = document.querySelector<HTMLElement>('.discussion-band');
+	const commentForm = document.getElementById('comment-form') as HTMLFormElement | null;
+	const commentBody = document.getElementById('comment-body') as HTMLTextAreaElement | null;
+	const commentThread = document.getElementById('comment-thread');
+	const commentCount = document.getElementById('comment-count');
+	const commentStatus = document.getElementById('comment-status');
+	const projectSlug = discussion?.dataset.projectSlug;
+	const convexUrl = import.meta.env.PUBLIC_GABA_CONVEX_URL;
+
+	function escapeHtml(value: unknown) {
+		return String(value ?? '')
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;')
+			.replaceAll("'", '&#039;');
+	}
+
+	function initials(name: string) {
+		const letters = name
+			.split(/\s+/)
+			.filter(Boolean)
+			.slice(0, 2)
+			.map((part) => part[0]?.toUpperCase())
+			.join('');
+		return letters || 'G';
+	}
+
+	function formatCommentTime(createdAt: number) {
+		const diff = createdAt - Date.now();
+		const minute = 60 * 1000;
+		const hour = 60 * minute;
+		const day = 24 * hour;
+		const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+		if (Math.abs(diff) < hour) return formatter.format(Math.round(diff / minute), 'minute');
+		if (Math.abs(diff) < day) return formatter.format(Math.round(diff / hour), 'hour');
+		return formatter.format(Math.round(diff / day), 'day');
+	}
+
+	function updateCount(count: number) {
+		if (!commentCount) return;
+		commentCount.textContent = `${count} ${count === 1 ? 'comment' : 'comments'}`;
+	}
+
+	function renderComments(comments: ProductComment[]) {
+		updateCount(comments.length);
+		if (!commentThread) return;
+
+		if (comments.length === 0) {
+			commentThread.innerHTML = '<div class="comment-empty">No comments yet. Start with a useful question, local context, or a concrete product suggestion.</div>';
+			return;
+		}
+
+		commentThread.innerHTML = comments
+			.map((comment) => {
+				const authorName = comment.authorName || 'GABA member';
+				const avatar = comment.authorImage
+					? `<img src="${escapeHtml(comment.authorImage)}" alt="" />`
+					: escapeHtml(initials(authorName));
+				return `
+					<article class="comment">
+						<div class="comment-head">
+							<div class="comment-author">
+								<div class="comment-avatar">${avatar}</div>
+								<div>
+									<strong>${escapeHtml(authorName)}</strong>
+									<span>Product feedback</span>
+								</div>
+							</div>
+							<time class="comment-time" datetime="${new Date(comment.createdAt).toISOString()}">${escapeHtml(formatCommentTime(comment.createdAt))}</time>
+						</div>
+						<p>${escapeHtml(comment.body)}</p>
+					</article>
+				`;
+			})
+			.join('');
+	}
+
+	async function loadComments() {
+		if (!projectSlug || !commentThread) return;
+		if (!convexUrl) {
+			renderComments([]);
+			if (commentStatus) commentStatus.textContent = 'Comments need Convex config before posting is available.';
+			return;
+		}
+
+		try {
+			const client = new ConvexHttpClient(convexUrl);
+			const comments = await client.query('products:listComments' as never, { targetSlug: projectSlug } as never);
+			renderComments(Array.isArray(comments) ? comments as ProductComment[] : []);
+		} catch {
+			commentThread.innerHTML = '<div class="comment-empty">Could not load comments right now.</div>';
+			if (commentCount) commentCount.textContent = 'Comments unavailable';
+		}
+	}
+
+	commentForm?.addEventListener('submit', async (event) => {
+		event.preventDefault();
+		const body = commentBody?.value.trim() || '';
+		const submitButton = commentForm.querySelector<HTMLButtonElement>('.composer-submit');
+
+		if (!projectSlug || body.length < 2) {
+			if (commentStatus) commentStatus.textContent = 'Write at least two characters before posting.';
+			return;
+		}
+
+		try {
+			if (submitButton) submitButton.disabled = true;
+			if (commentStatus) commentStatus.textContent = 'Posting comment...';
+			const { convexMutation } = await import('../../lib/convexAuthClient');
+			await convexMutation('products:createComment', { targetSlug: projectSlug, body });
+			if (commentBody) commentBody.value = '';
+			if (commentStatus) commentStatus.textContent = 'Comment posted.';
+			await loadComments();
+		} catch (error: any) {
+			if (commentStatus) commentStatus.textContent = error?.message || 'Sign in to post a comment.';
+		} finally {
+			if (submitButton) submitButton.disabled = false;
+		}
+	});
+
+	loadComments();
+</script>
