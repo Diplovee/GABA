@@ -81,11 +81,25 @@ import Footer from '../../components/Footer.astro';
 </html>
 
 <script>
+	import { isAuthenticated, signInEmailPassword, signUpEmailPassword } from '../../lib/convexAuthClient';
+
+	function setMessage(text: string, type: 'error' | 'success') {
+		const messageEl = document.getElementById('message');
+		if (!messageEl) return;
+		messageEl.textContent = text;
+		messageEl.classList.remove('hidden', 'error', 'success');
+		messageEl.classList.add(type);
+	}
+
 	function switchTab(tab: string) {
 		document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 		document.querySelectorAll('.auth-form').forEach(form => form.classList.add('hidden'));
 		document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
 		document.getElementById(`${tab}-form`)?.classList.remove('hidden');
+	}
+
+	if (await isAuthenticated()) {
+		window.location.href = '/vendor/dashboard';
 	}
 
 	document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -95,51 +109,53 @@ import Footer from '../../components/Footer.astro';
 	document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
 		e.preventDefault();
 		const form = e.target as HTMLFormElement;
-		const messageEl = document.getElementById('message');
-		
-		const email = (form.querySelector('#email') as HTMLInputElement).value;
+		const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+		const email = (form.querySelector('#email') as HTMLInputElement).value.trim().toLowerCase();
 		const password = (form.querySelector('#password') as HTMLInputElement).value;
-		
+
 		try {
-			const result = await (window as any).convexAuth.signIn.emailPassword({ email, password });
-			if (result) {
+			if (submitButton) submitButton.disabled = true;
+			const result = await signInEmailPassword({ email, password });
+			if (result?.tokens) {
 				window.location.href = '/vendor/dashboard';
+				return;
 			}
+			setMessage('Login failed. Please try again.', 'error');
 		} catch (error: any) {
-			messageEl!.textContent = error.message || 'Login failed';
-			messageEl!.classList.remove('hidden', 'success');
-			messageEl!.classList.add('error');
+			setMessage(error.message || 'Login failed', 'error');
+		} finally {
+			if (submitButton) submitButton.disabled = false;
 		}
 	});
 
 	document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
 		e.preventDefault();
 		const form = e.target as HTMLFormElement;
-		const messageEl = document.getElementById('message');
-		
-		const name = (form.querySelector('#reg-name') as HTMLInputElement).value;
-		const businessName = (form.querySelector('#reg-business') as HTMLInputElement).value;
-		const email = (form.querySelector('#reg-email') as HTMLInputElement).value;
-		const phone = (form.querySelector('#reg-phone') as HTMLInputElement).value;
+		const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+		const name = (form.querySelector('#reg-name') as HTMLInputElement).value.trim();
+		const businessName = (form.querySelector('#reg-business') as HTMLInputElement).value.trim();
+		const email = (form.querySelector('#reg-email') as HTMLInputElement).value.trim().toLowerCase();
+		const phone = (form.querySelector('#reg-phone') as HTMLInputElement).value.trim();
 		const password = (form.querySelector('#reg-password') as HTMLInputElement).value;
 		const confirmPassword = (form.querySelector('#reg-confirm') as HTMLInputElement).value;
 		
 		if (password !== confirmPassword) {
-			messageEl!.textContent = 'Passwords do not match';
-			messageEl!.classList.remove('hidden', 'success');
-			messageEl!.classList.add('error');
+			setMessage('Passwords do not match', 'error');
 			return;
 		}
 		
 		try {
-			const result = await (window as any).convexAuth.signUp.emailPassword({ email, password });
-			if (result) {
+			if (submitButton) submitButton.disabled = true;
+			const result = await signUpEmailPassword({ email, password, name, businessName, phone });
+			if (result?.tokens) {
 				window.location.href = '/pricing';
+				return;
 			}
+			setMessage('Registration failed. Please try again.', 'error');
 		} catch (error: any) {
-			messageEl!.textContent = error.message || 'Registration failed';
-			messageEl!.classList.remove('hidden', 'success');
-			messageEl!.classList.add('error');
+			setMessage(error.message || 'Registration failed', 'error');
+		} finally {
+			if (submitButton) submitButton.disabled = false;
 		}
 	});
 </script>

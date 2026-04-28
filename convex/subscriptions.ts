@@ -1,3 +1,4 @@
+import { getAuthUserId } from '@convex-dev/auth/server';
 import { query, mutation } from './_generated/server';
 import { v } from 'convex/values';
 
@@ -9,8 +10,8 @@ export const PRICING_TIERS = {
     features: [
       'Up to 10 products',
       'Standard listing',
-      '5% platform fee',
       'Email support',
+      'EcoCash/M-Pesa payments',
     ],
     limits: {
       maxProducts: 10,
@@ -24,9 +25,9 @@ export const PRICING_TIERS = {
     features: [
       'Unlimited products',
       'Featured listings',
-      '3% platform fee',
       'Priority support',
-      'Analytics dashboard',
+      'EcoCash/M-Pesa payments',
+      'Reduced 3% platform fee',
     ],
     limits: {
       maxProducts: Infinity,
@@ -42,28 +43,19 @@ export const getTierInfo = query({
   },
 });
 
-export const subscribe = mutation({
+export const createSubscription = mutation({
   args: {
+    userId: v.id('users'),
     tier: v.union(v.literal('starter'), v.literal('pro')),
     paymentMethod: v.union(v.literal('ecocash'), v.literal('mpesa')),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error('Unauthorized');
-    
-    const user = await ctx.db.query('users')
-      .withIndex('email', (q) => q.eq('email', identity.email!))
-      .first();
-    
-    if (!user) throw new Error('User not found');
-    
     const tier = PRICING_TIERS[args.tier];
     const now = Date.now();
-    const endDate = now + 30 * 24 * 60 * 60 * 1000; // 30 days
+    const endDate = now + 30 * 24 * 60 * 60 * 1000;
     
-    // Create pending subscription
     const subscriptionId = await ctx.db.insert('subscriptions', {
-      userId: user._id,
+      userId: args.userId,
       tier: args.tier,
       status: 'pending',
       amount: tier.price,
@@ -72,15 +64,13 @@ export const subscribe = mutation({
       createdAt: now,
     });
     
-    // Generate payment reference
     const reference = `GABA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
     
-    // Create pending payment
     await ctx.db.insert('payments', {
-      userId: user._id,
+      userId: args.userId,
       subscriptionId,
       amount: tier.price,
-      currency: 'USD',
+      currency: tier.currency,
       paymentMethod: args.paymentMethod,
       status: 'pending',
       reference,
@@ -92,6 +82,7 @@ export const subscribe = mutation({
       reference,
       amount: tier.price,
       paymentMethod: args.paymentMethod,
+      tier: args.tier,
     };
   },
 });
@@ -109,20 +100,17 @@ export const verifyPayment = mutation({
     if (!payment) throw new Error('Payment not found');
     if (payment.status === 'completed') return { success: true, message: 'Already verified' };
     
-    // Update payment status
     await ctx.db.patch(payment._id, {
       status: 'completed',
       transactionId,
     });
     
-    // Update subscription to active
     if (payment.subscriptionId) {
       await ctx.db.patch(payment.subscriptionId, {
         status: 'active',
         paymentReference: transactionId,
       });
       
-      // Update user subscription info
       const subscription = await ctx.db.get(payment.subscriptionId);
       if (subscription) {
         await ctx.db.patch(payment.userId, {
@@ -137,20 +125,11 @@ export const verifyPayment = mutation({
   },
 });
 
-export const getMySubscription = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
-    
-    const user = await ctx.db.query('users')
-      .withIndex('email', (q) => q.eq('email', identity.email!))
-      .first();
-    
-    if (!user) return null;
-    
+export const getSubscription = query({
+  args: { userId: v.id('users') },
+  handler: async (ctx, { userId }) => {
     const subscription = await ctx.db.query('subscriptions')
-      .withIndex('byUser', (q) => q.eq('userId', user._id))
+      .withIndex('byUser', (q) => q.eq('userId', userId))
       .filter((q) => q.eq(q.field('status'), 'active'))
       .first();
     
@@ -158,66 +137,48 @@ export const getMySubscription = query({
     
     const tier = PRICING_TIERS[subscription.tier];
     const now = Date.now();
-    const isExpired = subscription.endDate < now;
     
     return {
       ...subscription,
       tierInfo: tier,
-      isExpired,
+      isExpired: subscription.endDate < now,
       daysRemaining: Math.ceil((subscription.endDate - now) / (24 * 60 * 60 * 1000)),
     };
   },
 });
 
-export const getMyPayments = query({
+export const getMySubscription = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return [];
-    
-    const user = await ctx.db.query('users')
-      .withIndex('email', (q) => q.eq('email', identity.email!))
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
+    const subscription = await ctx.db.query('subscriptions')
+      .withIndex('byUser', (q) => q.eq('userId', userId))
+      .filter((q) => q.eq(q.field('status'), 'active'))
       .first();
-    
-    if (!user) return [];
-    
-    return await ctx.db.query('payments')
-      .withIndex('byUser', (q) => q.eq('userId', user._id))
-      .collect();
+
+    if (!subscription) return null;
+
+    const tier = PRICING_TIERS[subscription.tier];
+    const now = Date.now();
+
+    return {
+      ...subscription,
+      tierInfo: tier,
+      isExpired: subscription.endDate < now,
+      daysRemaining: Math.ceil((subscription.endDate - now) / (24 * 60 * 60 * 1000)),
+    };
   },
 });
 
-export const canAddProduct = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return { allowed: false, reason: 'Not logged in' };
-    
-    const user = await ctx.db.query('users')
-      .withIndex('email', (q) => q.eq('email', identity.email!))
-      .first();
-    
-    if (!user) return { allowed: false, reason: 'User not found' };
-    
-    if (user.subscriptionStatus !== 'active') {
-      return { allowed: false, reason: 'No active subscription', upgradeUrl: '/pricing' };
-    }
-    
-    const tier = user.subscriptionTier as 'starter' | 'pro';
-    const tierInfo = PRICING_TIERS[tier];
-    
-    const productCount = await ctx.db.query('products')
-      .withIndex('byUser', (q) => q.eq('userId', user._id))
+export const getPayments = query({
+  args: { userId: v.id('users') },
+  handler: async (ctx, { userId }) => {
+    return await ctx.db.query('payments')
+      .withIndex('byUser', (q) => q.eq('userId', userId))
       .collect();
-    
-    if (productCount.length >= tierInfo.limits.maxProducts) {
-      return { 
-        allowed: false, 
-        reason: `Maximum ${tierInfo.limits.maxProducts} products reached`,
-        upgradeUrl: '/pricing',
-      };
-    }
-    
-    return { allowed: true, productCount: productCount.length, maxProducts: tierInfo.limits.maxProducts };
   },
 });

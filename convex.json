@@ -1,16 +1,7 @@
 {
-  "node": "20",
-  "generators": {},
-  "functions": "./convex/**/*",
-  "auth": {
-    "providers": [
-      {
-        "domain": "email",
-        "noSignUp": false
-      }
-    ],
-    "session": {
-      "duration": 1296000
-    }
+  "$schema": "node_modules/convex/schemas/convex.schema.json",
+  "functions": "convex/",
+  "aiFiles": {
+    "enabled": false
   }
 }

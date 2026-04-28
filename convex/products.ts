@@ -1,3 +1,4 @@
+import { getAuthUserId } from '@convex-dev/auth/server';
 import { query, mutation } from './_generated/server';
 import { v } from 'convex/values';
 
@@ -43,19 +44,24 @@ export const search = query({
 });
 
 export const getVendorProducts = query({
+  args: { userId: v.id('users') },
+  handler: async (ctx, { userId }) => {
+    return await ctx.db.query('products')
+      .withIndex('byUser', (q) => q.eq('userId', userId))
+      .collect();
+  },
+});
+
+export const getMyProducts = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return [];
-    
-    const user = await ctx.db.query('users')
-      .withIndex('email', (q) => q.eq('email', identity.email!))
-      .first();
-    
-    if (!user) return [];
-    
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
     return await ctx.db.query('products')
-      .withIndex('byUser', (q) => q.eq('userId', user._id))
+      .withIndex('byUser', (q) => q.eq('userId', userId))
       .collect();
   },
 });
@@ -65,6 +71,7 @@ export const create = mutation({
     name: v.string(),
     description: v.string(),
     price: v.number(),
+    currency: v.optional(v.string()),
     images: v.array(v.string()),
     category: v.union(
       v.literal('electronics'),
@@ -81,22 +88,28 @@ export const create = mutation({
     repoUrl: v.optional(v.string()),
     liveUrl: v.optional(v.string()),
     stock: v.number(),
+    status: v.optional(v.union(v.literal('draft'), v.literal('active'), v.literal('archived'))),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error('Unauthorized');
-    
-    const user = await ctx.db.query('users')
-      .withIndex('email', (q) => q.eq('email', identity.email!))
-      .first();
-    
-    if (!user) throw new Error('User not found');
-    
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
     const now = Date.now();
     return await ctx.db.insert('products', {
-      ...args,
-      userId: user._id,
-      status: 'draft',
+      userId,
+      name: args.name,
+      description: args.description,
+      price: args.price,
+      currency: args.currency || 'USD',
+      images: args.images,
+      category: args.category,
+      demoUrl: args.demoUrl,
+      repoUrl: args.repoUrl,
+      liveUrl: args.liveUrl,
+      stock: args.stock,
+      status: args.status || 'draft',
       createdAt: now,
       updatedAt: now,
     });
@@ -109,14 +122,17 @@ export const update = mutation({
     name: v.optional(v.string()),
     description: v.optional(v.string()),
     price: v.optional(v.number()),
+    currency: v.optional(v.string()),
     images: v.optional(v.array(v.string())),
     category: v.optional(v.union(
-      v.literal('webapp'),
-      v.literal('mobile'),
-      v.literal('website'),
-      v.literal('plugin'),
-      v.literal('template'),
-      v.literal('saas'),
+      v.literal('electronics'),
+      v.literal('clothing'),
+      v.literal('food'),
+      v.literal('services'),
+      v.literal('art'),
+      v.literal('health'),
+      v.literal('education'),
+      v.literal('home'),
       v.literal('other')
     )),
     demoUrl: v.optional(v.string()),
@@ -126,13 +142,16 @@ export const update = mutation({
     status: v.optional(v.union(v.literal('draft'), v.literal('active'), v.literal('archived'))),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error('Unauthorized');
-    
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
     const { productId, ...updates } = args;
     const product = await ctx.db.get(productId);
     
     if (!product) throw new Error('Product not found');
+    if (product.userId !== userId) throw new Error('Unauthorized');
     
     await ctx.db.patch(productId, {
       ...updates,
@@ -144,11 +163,14 @@ export const update = mutation({
 export const deleteProduct = mutation({
   args: { productId: v.id('products') },
   handler: async (ctx, { productId }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error('Unauthorized');
-    
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
     const product = await ctx.db.get(productId);
     if (!product) throw new Error('Product not found');
+    if (product.userId !== userId) throw new Error('Unauthorized');
     
     await ctx.db.delete(productId);
   },
@@ -157,13 +179,8 @@ export const deleteProduct = mutation({
 export const getCategories = query({
   args: {},
   handler: async (ctx) => {
-    .unshift({
-      name: 'Electronics',
-      slug: 'electronics',
-      icon: '💻',
-      productCount: 0
-    });
-    results.push(
+    return [
+      { name: 'Electronics', slug: 'electronics', icon: '💻', productCount: 0 },
       { name: 'Clothing', slug: 'clothing', icon: '👕', productCount: 0 },
       { name: 'Food & Beverages', slug: 'food', icon: '🍔', productCount: 0 },
       { name: 'Services', slug: 'services', icon: '🔧', productCount: 0 },
@@ -171,8 +188,7 @@ export const getCategories = query({
       { name: 'Health & Beauty', slug: 'health', icon: '💊', productCount: 0 },
       { name: 'Education', slug: 'education', icon: '📚', productCount: 0 },
       { name: 'Home & Garden', slug: 'home', icon: '🏠', productCount: 0 },
-      { name: 'Other', slug: 'other', icon: '📦', productCount: 0 }
-    );
-    return results;
+      { name: 'Other', slug: 'other', icon: '📦', productCount: 0 },
+    ];
   },
 });
