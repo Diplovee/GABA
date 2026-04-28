@@ -109,6 +109,7 @@ export const create = mutation({
       v.literal('open-source'),
       v.literal('hiring')
     )),
+    launchAt: v.optional(v.number()),
     status: v.optional(v.union(v.literal('draft'), v.literal('active'), v.literal('archived'))),
   },
   handler: async (ctx, args) => {
@@ -137,6 +138,7 @@ export const create = mutation({
       liveUrl: args.liveUrl,
       stock: args.stock,
       productStatus: args.productStatus || 'beta',
+      launchAt: args.launchAt,
       reviewStatus: 'pending',
       upvoteCount: 0,
       commentCount: 0,
@@ -182,6 +184,7 @@ export const update = mutation({
       v.literal('open-source'),
       v.literal('hiring')
     )),
+    launchAt: v.optional(v.number()),
     reviewStatus: v.optional(v.union(
       v.literal('pending'),
       v.literal('approved'),

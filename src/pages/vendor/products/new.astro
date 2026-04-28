@@ -35,7 +35,7 @@ const statuses = [
 				<aside class="submission-note">
 					<p class="eyebrow">Open submission, reviewed listing</p>
 					<h1>Submit a Product</h1>
-					<p>GABA lists tech products with a real maker, country context, and a clear problem. Approved submissions appear in Best Products and Drops.</p>
+					<p>GABA lists tech products with a real maker, country context, and a clear problem. Approved submissions appear in Best Products.</p>
 					<div class="standard-card">
 						<span>Listing standard</span>
 						<strong>What problem does this solve, for who, and where?</strong>
@@ -83,6 +83,11 @@ const statuses = [
 									<option value={status.slug}>{status.name}</option>
 								))}
 							</select>
+						</div>
+						<div class="form-group">
+							<label for="launchAt">Launch Date And Time *</label>
+							<input type="datetime-local" id="launchAt" name="launchAt" required />
+							<p class="help-text">Choose when this product should show as launching. Use your local time.</p>
 						</div>
 					</div>
 
@@ -350,6 +355,18 @@ const statuses = [
 	const form = document.getElementById('productForm') as HTMLFormElement;
 	const imageInput = document.getElementById('images') as HTMLInputElement;
 	const imagePreview = document.getElementById('imagePreview');
+	const launchAtInput = document.getElementById('launchAt') as HTMLInputElement;
+
+	function localDatetimeValue(date: Date) {
+		const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+		return offsetDate.toISOString().slice(0, 16);
+	}
+
+	if (launchAtInput) {
+		const minimumLaunchDate = new Date(Date.now() + 30 * 60 * 1000);
+		launchAtInput.min = localDatetimeValue(new Date());
+		launchAtInput.value = localDatetimeValue(minimumLaunchDate);
+	}
 
 	imageInput?.addEventListener('change', (e) => {
 		const files = (e.target as HTMLInputElement).files;
@@ -392,8 +409,14 @@ const statuses = [
 			demoUrl: optionalUrl('demoUrl'),
 			logo: optionalUrl('logo'),
 			images: [],
+			launchAt: new Date(String(formData.get('launchAt') || '')).getTime(),
 			status,
 		};
+
+		if (!Number.isFinite(data.launchAt)) {
+			alert('Choose a valid launch date and time.');
+			return;
+		}
 
 		try {
 			await convexMutation('products:create', data);

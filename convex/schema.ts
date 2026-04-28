@@ -56,6 +56,7 @@ export default defineSchema({
       v.literal('open-source'),
       v.literal('hiring')
     )),
+    launchAt: v.optional(v.number()),
     reviewStatus: v.optional(v.union(
       v.literal('pending'),
       v.literal('approved'),

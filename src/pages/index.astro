@@ -382,6 +382,7 @@ const statuses = ['All Statuses', 'Beta', 'Live', 'Open Source', 'Hiring'];
 		status: string;
 		upvoteCount?: number;
 		commentCount?: number;
+		launchAt?: number;
 	};
 
 	const categoryLabels: Record<string, string> = {
@@ -404,10 +405,10 @@ const statuses = ['All Statuses', 'Beta', 'Live', 'Open Source', 'Hiring'];
 	};
 
 	const sampleProducts: Product[] = [
-		{ _id: 'seed-1', name: 'FarmFresh App', tagline: 'Fresh produce logistics for local buyers', description: 'Mobile commerce and logistics for local farm supply chains.', problemSolved: 'Helps restaurants and households buy reliable farm produce from nearby growers.', country: 'Zimbabwe', category: 'apps', makerName: 'Farai Moyo', makerLocation: 'Harare', liveUrl: '/projects/farmfresh-app', productStatus: 'live', status: 'active', upvoteCount: 148, commentCount: 12 },
-		{ _id: 'seed-2', name: 'EcoCar Zim', tagline: 'EV charging discovery and routing for Zimbabwe', description: 'EV charging discovery and mobility intelligence for Zimbabwe.', problemSolved: 'Shows drivers where charging options exist before buying or operating an EV.', country: 'Zimbabwe', category: 'saas', makerName: 'Tariro Labs', makerLocation: 'Harare', liveUrl: '/projects/ecocar-zim', productStatus: 'beta', status: 'active', upvoteCount: 96, commentCount: 8 },
-		{ _id: 'seed-3', name: 'Mbare Market Hub', tagline: 'Inventory and mobile payments for informal traders', description: 'Commerce dashboard for informal trader inventory and payments.', problemSolved: 'Gives market traders a simple way to track stock, sales, and mobile payments.', country: 'Zimbabwe', category: 'fintech', makerName: 'Harare Lab', makerLocation: 'Mbare', liveUrl: '/vendor', productStatus: 'beta', status: 'active', upvoteCount: 81, commentCount: 5 },
-		{ _id: 'seed-4', name: 'Shona AI Tools', tagline: 'Language tooling prototypes for local support and content', description: 'Language tooling prototypes for local customer support and content.', problemSolved: 'Helps teams answer customers and create content in local language contexts.', country: 'Zimbabwe', category: 'ai', makerName: 'Nyasha Code Studio', makerLocation: 'Bulawayo', liveUrl: '/launches', productStatus: 'open-source', status: 'active', upvoteCount: 73, commentCount: 15 },
+		{ _id: 'seed-1', name: 'FarmFresh App', tagline: 'Fresh produce logistics for local buyers', description: 'Mobile commerce and logistics for local farm supply chains.', problemSolved: 'Helps restaurants and households buy reliable farm produce from nearby growers.', country: 'Zimbabwe', category: 'apps', makerName: 'Farai Moyo', makerLocation: 'Harare', liveUrl: '/projects/farmfresh-app', productStatus: 'live', status: 'active', upvoteCount: 148, commentCount: 12, launchAt: Date.now() + 2 * 60 * 60 * 1000 },
+		{ _id: 'seed-2', name: 'EcoCar Zim', tagline: 'EV charging discovery and routing for Zimbabwe', description: 'EV charging discovery and mobility intelligence for Zimbabwe.', problemSolved: 'Shows drivers where charging options exist before buying or operating an EV.', country: 'Zimbabwe', category: 'saas', makerName: 'Tariro Labs', makerLocation: 'Harare', liveUrl: '/projects/ecocar-zim', productStatus: 'beta', status: 'active', upvoteCount: 96, commentCount: 8, launchAt: Date.now() + 24 * 60 * 60 * 1000 },
+		{ _id: 'seed-3', name: 'Mbare Market Hub', tagline: 'Inventory and mobile payments for informal traders', description: 'Commerce dashboard for informal trader inventory and payments.', problemSolved: 'Gives market traders a simple way to track stock, sales, and mobile payments.', country: 'Zimbabwe', category: 'fintech', makerName: 'Harare Lab', makerLocation: 'Mbare', liveUrl: '/vendor', productStatus: 'beta', status: 'active', upvoteCount: 81, commentCount: 5, launchAt: Date.now() - 3 * 60 * 60 * 1000 },
+		{ _id: 'seed-4', name: 'Shona AI Tools', tagline: 'Language tooling prototypes for local support and content', description: 'Language tooling prototypes for local customer support and content.', problemSolved: 'Helps teams answer customers and create content in local language contexts.', country: 'Zimbabwe', category: 'ai', makerName: 'Nyasha Code Studio', makerLocation: 'Bulawayo', liveUrl: '/', productStatus: 'open-source', status: 'active', upvoteCount: 73, commentCount: 15, launchAt: Date.now() + 3 * 24 * 60 * 60 * 1000 },
 	];
 
 	const searchInput = document.getElementById('search') as HTMLInputElement | null;
@@ -456,6 +457,26 @@ const statuses = ['All Statuses', 'Beta', 'Live', 'Open Source', 'Hiring'];
 		return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 5 7 12H5z"/></svg>';
 	}
 
+	function launchLabel(product: Product) {
+		if (!product.launchAt) {
+			return statusLabels[product.productStatus || 'live'] || product.productStatus || 'Live';
+		}
+
+		const launchDate = new Date(product.launchAt);
+		const now = new Date();
+		const sameDay = launchDate.toDateString() === now.toDateString();
+		const time = launchDate.toLocaleTimeString('en-GB', {
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+
+		if (product.launchAt > Date.now()) {
+			return sameDay ? `Launching today ${time}` : `Launching ${launchDate.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })}`;
+		}
+
+		return sameDay ? `Launched today ${time}` : `Launched ${launchDate.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })}`;
+	}
+
 	function renderProducts() {
 		if (!productsList) return;
 		const activeCategory = categoryFilter?.value || 'all';
@@ -481,7 +502,7 @@ const statuses = ['All Statuses', 'Beta', 'Live', 'Open Source', 'Hiring'];
 			.map((product) => {
 				const href = primaryUrl(product);
 				const label = categoryLabels[product.category] || product.category;
-				const status = statusLabels[product.productStatus || 'live'] || product.productStatus || 'Live';
+				const status = launchLabel(product);
 				const logo = product.logo
 					? `<img src="${escapeHtml(product.logo)}" alt="" />`
 					: escapeHtml(initials(product.name));

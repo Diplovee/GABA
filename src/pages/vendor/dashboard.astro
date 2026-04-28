@@ -87,16 +87,28 @@ import Footer from '../../components/Footer.astro';
 			return;
 		}
 
+		const launchLabel = (launchAt?: number) => {
+			if (!launchAt) return 'Launch time not set';
+			return new Date(launchAt).toLocaleString('en-GB', {
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+			});
+		};
+
 		productsList.innerHTML = products.map((product: any) => `
 			<div class="product-item">
 				<div class="product-info">
 					<h3>${product.name}</h3>
 					<span class="category-badge">${product.category}</span>
 					<span class="status-badge ${product.status}">${product.status}</span>
+					<span class="launch-badge">Launch: ${launchLabel(product.launchAt)}</span>
 				</div>
 				<div class="product-actions">
 					<span class="btn-edit">Edit later</span>
-					<a href="${product.liveUrl || product.demoUrl || product.repoUrl || '/launches'}" target="_blank" class="btn-view">View</a>
+					<a href="${product.liveUrl || product.demoUrl || product.repoUrl || '/'}" target="_blank" class="btn-view">View</a>
 				</div>
 			</div>
 		`).join('');
@@ -305,12 +317,18 @@ import Footer from '../../components/Footer.astro';
 		font-weight: 600;
 		margin-right: 0.5em;
 	}
-	.status-badge {
+	.status-badge,
+	.launch-badge {
 		display: inline-block;
 		padding: 0.2em 0.5em;
 		border-radius: 4px;
 		font-size: 0.75em;
 		font-weight: 600;
+	}
+	.launch-badge {
+		margin-left: 0.5em;
+		background: #f1f5f9;
+		color: #334155;
 	}
 	.status-badge.active {
 		background: rgba(49, 155, 50, 0.2);
