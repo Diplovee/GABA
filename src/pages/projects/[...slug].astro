@@ -391,6 +391,7 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		display: grid;
 		grid-template-columns: 42px minmax(0, 1fr);
 		gap: 0.85rem;
+		align-items: start;
 		padding: 1rem 1.1rem;
 		border: 1px solid var(--ui-border);
 		border-radius: 6px;
@@ -409,6 +410,13 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		color: #0f172a;
 		font-size: 0.76rem;
 		font-weight: 900;
+	}
+	.composer-avatar {
+		margin-top: 2.65rem;
+		transition: margin-top 0.16s ease;
+	}
+	.comment-composer:focus-within .composer-avatar {
+		margin-top: 5.9rem;
 	}
 	.comment-avatar {
 		overflow: hidden;
@@ -430,11 +438,28 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 0.25rem;
-		margin-bottom: 0.65rem;
+		max-height: 0;
+		margin-bottom: 0;
 		padding: 0.35rem;
 		border: 1px solid var(--ui-border);
 		border-radius: 4px;
 		background: #f8fafc;
+		opacity: 0;
+		overflow: hidden;
+		pointer-events: none;
+		transform: translateY(-4px);
+		transition:
+			max-height 0.16s ease,
+			margin-bottom 0.16s ease,
+			opacity 0.16s ease,
+			transform 0.16s ease;
+	}
+	.comment-composer:focus-within .comment-toolbar {
+		max-height: 96px;
+		margin-bottom: 0.65rem;
+		opacity: 1;
+		pointer-events: auto;
+		transform: translateY(0);
 	}
 	.comment-toolbar button {
 		display: inline-flex;
@@ -743,6 +768,10 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		}
 		.comment-composer {
 			grid-template-columns: 1fr;
+		}
+		.composer-avatar,
+		.comment-composer:focus-within .composer-avatar {
+			margin-top: 0;
 		}
 		.visual-placeholder {
 			grid-template-columns: 1fr;
