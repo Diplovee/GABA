@@ -43,12 +43,12 @@ import Footer from '../../components/Footer.astro';
 				<div id="register-form" class="auth-form hidden">
 					<form id="registerForm">
 						<div class="form-group">
-							<label for="reg-name">Business/Personal Name</label>
-							<input type="text" id="reg-name" name="name" required placeholder="Your name or business name" />
+							<label for="reg-name">Contact Name</label>
+							<input type="text" id="reg-name" name="name" required placeholder="Your full name" />
 						</div>
 						<div class="form-group">
-							<label for="reg-business">Business Name (Optional)</label>
-							<input type="text" id="reg-business" name="businessName" placeholder="Your company name" />
+							<label for="reg-business">Business Name</label>
+							<input type="text" id="reg-business" name="businessName" placeholder="Your shop or company name" />
 						</div>
 						<div class="form-group">
 							<label for="reg-email">Email</label>
@@ -146,19 +146,27 @@ import Footer from '../../components/Footer.astro';
 
 <style>
 	.auth-page {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		min-height: 60vh;
-		padding: 2em;
+		display: grid;
+		place-items: center;
+		width: 100%;
+		max-width: none;
+		min-height: calc(100vh - 180px);
+		box-sizing: border-box;
+		padding: 2em 1em;
+		margin: 0;
 	}
 	.auth-container {
-		width: 100%;
-		max-width: 400px;
+		width: min(100%, 560px);
+		box-sizing: border-box;
 		background: white;
 		border-radius: 16px;
-		padding: 2em;
+		padding: clamp(1.5em, 4vw, 2.5em);
 		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	}
+	.auth-container *,
+	.auth-container *::before,
+	.auth-container *::after {
+		box-sizing: border-box;
 	}
 	.auth-header {
 		text-align: center;
