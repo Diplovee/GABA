@@ -88,7 +88,7 @@ import Footer from '../../components/Footer.astro';
 		}
 
 		const launchLabel = (launchAt?: number) => {
-			if (!launchAt) return 'Launch time not set';
+			if (!launchAt) return '';
 			return new Date(launchAt).toLocaleString('en-GB', {
 				year: 'numeric',
 				month: 'short',
@@ -104,7 +104,7 @@ import Footer from '../../components/Footer.astro';
 					<h3>${product.name}</h3>
 					<span class="category-badge">${product.category}</span>
 					<span class="status-badge ${product.status}">${product.status}</span>
-					<span class="launch-badge">Launch: ${launchLabel(product.launchAt)}</span>
+					${product.launchAt ? `<span class="launch-badge">Launch: ${launchLabel(product.launchAt)}</span>` : ''}
 				</div>
 				<div class="product-actions">
 					<span class="btn-edit">Edit later</span>

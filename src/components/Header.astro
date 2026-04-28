@@ -4,16 +4,6 @@ import HeaderLink from './HeaderLink.astro';
 ---
 
 <header class="site-header">
-	<div class="utility-bar">
-		<div class="utility-inner">
-			<div class="utility-left">
-				<span>African Tech: <strong>Live</strong></span>
-				<span class="divider">|</span>
-				<span>HRE Time: <span id="header-clock" class="mono">--:--:--</span></span>
-			</div>
-			<div class="utility-right">Zimbabwe-first product discovery, Africa-wide</div>
-		</div>
-	</div>
 	<nav class="main-nav" aria-label="Primary navigation">
 		<div class="nav-inner">
 			<a href="/" class="brand" aria-label={`${SITE_TITLE} home`}>
@@ -45,57 +35,15 @@ import HeaderLink from './HeaderLink.astro';
 	</nav>
 </header>
 
-<script>
-	function updateHeaderClock() {
-		const clock = document.getElementById('header-clock');
-		if (!clock) return;
-		clock.textContent = new Date().toLocaleTimeString('en-GB', {
-			timeZone: 'Africa/Harare',
-			hour12: false,
-		});
-	}
-
-	updateHeaderClock();
-	window.setInterval(updateHeaderClock, 1000);
-</script>
-
 <style>
 	.site-header {
 		position: sticky;
 		top: 0;
 		z-index: 50;
 	}
-	.utility-bar {
-		background: #0f172a;
-		color: white;
-		font-size: 10px;
-		font-weight: 800;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-	}
-	.utility-inner,
 	.nav-inner {
 		width: min(1400px, calc(100% - 3rem));
 		margin: 0 auto;
-	}
-	.utility-inner {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		min-height: 31px;
-		gap: 1rem;
-	}
-	.utility-left {
-		display: flex;
-		gap: 0.9rem;
-		align-items: center;
-	}
-	.utility-left strong {
-		color: #34d399;
-	}
-	.divider,
-	.utility-right {
-		color: #64748b;
 	}
 	.main-nav {
 		border-bottom: 1px solid var(--ui-border);

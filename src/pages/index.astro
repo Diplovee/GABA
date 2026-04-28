@@ -459,7 +459,7 @@ const statuses = ['All Statuses', 'Beta', 'Live', 'Open Source', 'Hiring'];
 
 	function launchLabel(product: Product) {
 		if (!product.launchAt) {
-			return statusLabels[product.productStatus || 'live'] || product.productStatus || 'Live';
+			return null;
 		}
 
 		const launchDate = new Date(product.launchAt);
@@ -502,7 +502,7 @@ const statuses = ['All Statuses', 'Beta', 'Live', 'Open Source', 'Hiring'];
 			.map((product) => {
 				const href = primaryUrl(product);
 				const label = categoryLabels[product.category] || product.category;
-				const status = launchLabel(product);
+				const launchBadge = launchLabel(product);
 				const logo = product.logo
 					? `<img src="${escapeHtml(product.logo)}" alt="" />`
 					: escapeHtml(initials(product.name));
@@ -512,7 +512,7 @@ const statuses = ['All Statuses', 'Beta', 'Live', 'Open Source', 'Hiring'];
 						<div class="product-main">
 							<div class="product-title-line">
 								<a href="${escapeHtml(href)}" ${href.startsWith('http') ? 'target="_blank" rel="noreferrer"' : ''}>${escapeHtml(product.name)}</a>
-								<span class="pitch-badge">${escapeHtml(status)}</span>
+								${launchBadge ? `<span class="pitch-badge">${escapeHtml(launchBadge)}</span>` : ''}
 							</div>
 							<p class="product-tagline">${escapeHtml(product.tagline || product.problemSolved || product.description)}</p>
 							<div class="product-meta">
