@@ -128,6 +128,20 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 					<div class="composer-avatar" aria-hidden="true">@</div>
 					<div class="composer-body">
 						<label for="comment-body">Add a useful product note</label>
+						<div class="comment-toolbar" aria-label="Comment formatting tools">
+							<button type="button" data-format="bold" title="Bold">B</button>
+							<button type="button" data-format="italic" title="Italic"><em>I</em></button>
+							<span class="toolbar-divider"></span>
+							<button type="button" data-format="ordered" title="Numbered list">1.</button>
+							<button type="button" data-format="unordered" title="Bullet list">-</button>
+							<span class="toolbar-divider"></span>
+							<button type="button" data-format="link" title="Link">Link</button>
+							<button type="button" data-format="code" title="Code">Code</button>
+							<button type="button" data-format="quote" title="Quote">"</button>
+							<span class="toolbar-divider"></span>
+							<button type="button" data-format="mention" title="Mention">@</button>
+							<button type="button" data-format="image" title="Image">Image</button>
+						</div>
 						<textarea id="comment-body" name="body" maxlength="1000" placeholder="Ask a sharp question, share field context, or point out what would make this product stronger."></textarea>
 						<div class="composer-actions">
 							<p id="comment-status" class="discussion-status" aria-live="polite">Sign in to post. Everyone can read the thread.</p>
@@ -411,6 +425,44 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		font-size: 0.85rem;
 		font-weight: 900;
 	}
+	.comment-toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.25rem;
+		margin-bottom: 0.65rem;
+		padding: 0.35rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: #f8fafc;
+	}
+	.comment-toolbar button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 34px;
+		height: 32px;
+		padding: 0 0.55rem;
+		border: 0;
+		border-radius: 4px;
+		background: transparent;
+		color: #475569;
+		font: inherit;
+		font-size: 0.78rem;
+		font-weight: 900;
+	}
+	.comment-toolbar button:hover,
+	.comment-toolbar button:focus-visible {
+		background: white;
+		color: #0f172a;
+		outline: 1px solid var(--ui-border);
+	}
+	.toolbar-divider {
+		width: 1px;
+		height: 24px;
+		margin: 0 0.2rem;
+		background: var(--ui-border);
+	}
 	.composer-body textarea {
 		display: block;
 		width: 100%;
@@ -517,6 +569,60 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 		margin: 0.85rem 0 0;
 		color: #334155;
 		line-height: 1.7;
+	}
+	.comment-body {
+		margin-top: 0.9rem;
+		color: #334155;
+		line-height: 1.7;
+	}
+	.comment-body p {
+		margin: 0.65rem 0 0;
+	}
+	.comment-body p:first-child {
+		margin-top: 0;
+	}
+	.comment-body a {
+		color: var(--accent);
+		font-weight: 800;
+		text-decoration: none;
+	}
+	.comment-body a:hover {
+		color: var(--accent-dark);
+		text-decoration: underline;
+	}
+	.comment-body code {
+		padding: 0.15rem 0.35rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 4px;
+		background: #f8fafc;
+		color: #0f172a;
+		font-size: 0.86em;
+	}
+	.comment-body blockquote {
+		margin: 0.75rem 0 0;
+		padding: 0.55rem 0.75rem;
+		border-left: 3px solid var(--accent);
+		background: #f8fafc;
+		color: #475569;
+	}
+	.comment-body ul,
+	.comment-body ol {
+		margin: 0.65rem 0 0;
+		padding-left: 1.25rem;
+	}
+	.comment-body img {
+		display: block;
+		max-width: min(100%, 620px);
+		max-height: 420px;
+		margin-top: 0.75rem;
+		border: 1px solid var(--ui-border);
+		border-radius: 6px;
+		object-fit: contain;
+		background: #f8fafc;
+	}
+	.comment-mention {
+		color: #0f172a;
+		font-weight: 900;
 	}
 	.comment-empty {
 		padding: 1.25rem;
@@ -677,6 +783,124 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 			.replaceAll("'", '&#039;');
 	}
 
+	function isSafeUrl(value: string) {
+		try {
+			const url = new URL(value);
+			return url.protocol === 'https:' || url.protocol === 'http:';
+		} catch {
+			return false;
+		}
+	}
+
+	function renderInlineMarkdown(value: string) {
+		let rendered = escapeHtml(value);
+		rendered = rendered.replace(/`([^`]+)`/g, '<code>$1</code>');
+		rendered = rendered.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+		rendered = rendered.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+		rendered = rendered.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (_match, label, url) => {
+			return isSafeUrl(url)
+				? `<a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${label}</a>`
+				: label;
+		});
+		rendered = rendered.replace(/(^|\s)@([a-zA-Z0-9_.-]{2,32})/g, '$1<span class="comment-mention">@$2</span>');
+		return rendered;
+	}
+
+	function renderCommentBody(value: string) {
+		const lines = value.split(/\r?\n/);
+		const html: string[] = [];
+		let listType: 'ul' | 'ol' | null = null;
+
+		const closeList = () => {
+			if (listType) {
+				html.push(`</${listType}>`);
+				listType = null;
+			}
+		};
+
+		for (const line of lines) {
+			const trimmed = line.trim();
+			if (!trimmed) {
+				closeList();
+				continue;
+			}
+
+			const imageMatch = trimmed.match(/^!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)$/);
+			if (imageMatch && isSafeUrl(imageMatch[2])) {
+				closeList();
+				html.push(`<img src="${escapeHtml(imageMatch[2])}" alt="${escapeHtml(imageMatch[1] || 'Comment image')}" loading="lazy" />`);
+				continue;
+			}
+
+			const unorderedMatch = trimmed.match(/^[-*]\s+(.+)$/);
+			if (unorderedMatch) {
+				if (listType !== 'ul') {
+					closeList();
+					html.push('<ul>');
+					listType = 'ul';
+				}
+				html.push(`<li>${renderInlineMarkdown(unorderedMatch[1])}</li>`);
+				continue;
+			}
+
+			const orderedMatch = trimmed.match(/^\d+\.\s+(.+)$/);
+			if (orderedMatch) {
+				if (listType !== 'ol') {
+					closeList();
+					html.push('<ol>');
+					listType = 'ol';
+				}
+				html.push(`<li>${renderInlineMarkdown(orderedMatch[1])}</li>`);
+				continue;
+			}
+
+			const quoteMatch = trimmed.match(/^>\s?(.+)$/);
+			if (quoteMatch) {
+				closeList();
+				html.push(`<blockquote>${renderInlineMarkdown(quoteMatch[1])}</blockquote>`);
+				continue;
+			}
+
+			closeList();
+			html.push(`<p>${renderInlineMarkdown(trimmed)}</p>`);
+		}
+
+		closeList();
+		return html.join('');
+	}
+
+	function insertFormatting(format: string) {
+		if (!commentBody) return;
+		const start = commentBody.selectionStart;
+		const end = commentBody.selectionEnd;
+		const selected = commentBody.value.slice(start, end);
+		const fallback: Record<string, string> = {
+			bold: 'strong point',
+			italic: 'emphasis',
+			link: 'link text',
+			code: 'code',
+			quote: 'quote',
+			mention: 'maker',
+			image: 'Image description',
+		};
+		const templates: Record<string, string> = {
+			bold: `**${selected || fallback.bold}**`,
+			italic: `*${selected || fallback.italic}*`,
+			ordered: selected ? selected.split(/\r?\n/).map((line, index) => `${index + 1}. ${line}`).join('\n') : '1. First point',
+			unordered: selected ? selected.split(/\r?\n/).map((line) => `- ${line}`).join('\n') : '- First point',
+			link: `[${selected || fallback.link}](https://example.com)`,
+			code: `\`${selected || fallback.code}\``,
+			quote: selected ? selected.split(/\r?\n/).map((line) => `> ${line}`).join('\n') : `> ${fallback.quote}`,
+			mention: `@${selected || fallback.mention}`,
+			image: `![${selected || fallback.image}](https://example.com/image.jpg)`,
+		};
+		const insertion = templates[format];
+		if (!insertion) return;
+
+		commentBody.setRangeText(insertion, start, end, 'select');
+		commentBody.focus();
+	}
+
 	function initials(name: string) {
 		const letters = name
 			.split(/\s+/)
@@ -731,7 +955,7 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 							</div>
 							<time class="comment-time" datetime="${new Date(comment.createdAt).toISOString()}">${escapeHtml(formatCommentTime(comment.createdAt))}</time>
 						</div>
-						<p>${escapeHtml(comment.body)}</p>
+						<div class="comment-body">${renderCommentBody(comment.body)}</div>
 					</article>
 				`;
 			})
@@ -751,10 +975,14 @@ const slugSeed = project.id.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase()
 			const comments = await client.query('products:listComments' as never, { targetSlug: projectSlug } as never);
 			renderComments(Array.isArray(comments) ? comments as ProductComment[] : []);
 		} catch {
-			commentThread.innerHTML = '<div class="comment-empty">Could not load comments right now.</div>';
+			commentThread.innerHTML = '<div class="comment-empty">Comments not available.</div>';
 			if (commentCount) commentCount.textContent = 'Comments unavailable';
 		}
 	}
+
+	document.querySelectorAll<HTMLButtonElement>('.comment-toolbar button').forEach((button) => {
+		button.addEventListener('click', () => insertFormatting(button.dataset.format || ''));
+	});
 
 	commentForm?.addEventListener('submit', async (event) => {
 		event.preventDefault();
